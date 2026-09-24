@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'otp_sent' => 'OTP sent to your phone.',
+    'logged_out' => 'Logged out successfully.',
+    'address_default_set' => 'Address set as default.',
+    'address_deleted' => 'Address deleted.',
+    'notification_read' => 'Notification marked as read.',
+    'notifications_read_all' => 'All notifications marked as read.',
+    'notification_deleted' => 'Notification deleted.',
+    'product_deleted' => 'Product deleted.',
+    'product_not_in_store' => 'Product does not belong to this store.',
+    'not_enough_stock' => 'Not enough stock available.',
+    'cart_empty' => 'Your cart is empty.',
+    'insufficient_wallet_balance' => 'Insufficient wallet balance.',
+    'only_delivered_can_review' => 'Only delivered orders can be reviewed.',
+    'already_reviewed' => 'This order has already been reviewed.',
+    'invalid_status_transition' => 'Invalid status transition.',
+    'order_cannot_be_cancelled' => 'Order cannot be cancelled.',
+    'stock_left' => 'Only :stock of ":name" left in stock.',
+    'order_payment' => 'Order payment',
+    'wallet_top_up' => 'Wallet top up',
+    'refund_order' => 'Refund for cancelled order :number',
+    'contact_us_sent' => 'Your message has been sent successfully.',
+    'social_icon_uploaded' => 'Social icon uploaded successfully.',
+    'category_icon_uploaded' => 'Category icon uploaded successfully.',
+    'policy_not_found' => 'The policy is not available yet.',
+];

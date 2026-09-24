@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'otp_sent' => 'تم إرسال رمز التحقق إلى هاتفك.',
+    'logged_out' => 'تم تسجيل الخروج بنجاح.',
+    'address_default_set' => 'تم تعيين العنوان كعنوان افتراضي.',
+    'address_deleted' => 'تم حذف العنوان.',
+    'notification_read' => 'تم تحديد الإشعار كمقروء.',
+    'notifications_read_all' => 'تم تحديد جميع الإشعارات كمقروءة.',
+    'notification_deleted' => 'تم حذف الإشعار.',
+    'product_deleted' => 'تم حذف المنتج.',
+    'product_not_in_store' => 'المنتج لا يتبع هذا المتجر.',
+    'not_enough_stock' => 'الكمية المتوفرة غير كافية.',
+    'cart_empty' => 'سلة التسوق فارغة.',
+    'insufficient_wallet_balance' => 'رصيد المحفظة غير كافٍ.',
+    'only_delivered_can_review' => 'يمكن تقييم الطلبات المُسلّمة فقط.',
+    'already_reviewed' => 'تم تقييم هذا الطلب مسبقًا.',
+    'invalid_status_transition' => 'انتقال الحالة غير صالح.',
+    'order_cannot_be_cancelled' => 'لا يمكن إلغاء الطلب.',
+    'stock_left' => 'الكمية المتبقية من ":name" هي :stock فقط.',
+    'order_payment' => 'دفع الطلب',
+    'wallet_top_up' => 'شحن المحفظة',
+    'refund_order' => 'استرداد للطلب الملغى :number',
+    'contact_us_sent' => 'تم إرسال رسالتك بنجاح.',
+    'social_icon_uploaded' => 'تم رفع أيقونة المنصة بنجاح.',
+    'category_icon_uploaded' => 'تم رفع أيقونة القسم بنجاح.',
+    'policy_not_found' => 'السياسة غير متاحة حالياً.',
+];

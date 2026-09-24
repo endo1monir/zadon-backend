@@ -1,0 +1,1123 @@
+{
+  "info": {
+    "name": "Zadon API",
+    "_postman_id": "8f3f2a1e-2b4c-4d6e-8a9b-1c2d3e4f5a6b",
+    "description": "# Zadon API — Postman Collection\n\nTwo APIs:\n- **Customer App API** — public endpoints under `/api` (home, categories, stores, products) + authenticated customer endpoints (auth, profile, addresses, cart, checkout, orders, reviews, wallet, notifications).\n- **Vendor Dashboard API** — all endpoints under `/api/vendor`.\n\n## Setup\n1. Set the `base_url` variable (default `http://127.0.0.1:8000`) to your local server. Run `php artisan serve` to start it.\n2. Log in or register — the **token is captured automatically** into the `app_token` / `vendor_token` collection variables via the response test scripts.\n3. Update the shared **ID variables** (`storeId`, `productId`, `orderId`, etc.) to real IDs returned by your data.\n\n> File upload fields (`avatar`, `image`, `logo`, `cover_image`) are optional. To test them, switch the request body to `form-data` and add the file field.\n\n## Terrains\n- Auth: `Authorization: Bearer {{app_token}}` for the App API, `Bearer {{vendor_token}}` for the Vendor API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "app_token", "value": "" },
+    { "key": "vendor_token", "value": "" },
+    { "key": "storeId", "value": "1" },
+    { "key": "productId", "value": "1" },
+    { "key": "categoryId", "value": "1" },
+    { "key": "orderId", "value": "1" },
+    { "key": "orderItemId", "value": "1" },
+    { "key": "cartItemId", "value": "1" },
+    { "key": "addressId", "value": "1" },
+    { "key": "notificationId", "value": "1" },
+    { "key": "reviewId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Customer App API (/api)",
+      "description": "Endpoints used by the customer mobile app.",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"phone\": \"0555012345\",\n  \"email\": \"ahmed@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"city\": \"Riyadh\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a customer account. Returns a Sanctum `token` (ability `app`) — auto-saved to `app_token`. Optional `avatar` file field (jpg/jpeg/png/webp max 2MB)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('app_token', json.token); pm.test('Token captured', () => pm.expect(json.token).not.undefined); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"0555012345\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Login as a customer. Token auto-saved to `app_token`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('app_token', json.token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Home",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/home",
+              "host": ["{{base_url}}"],
+              "path": ["api", "home"]
+            },
+            "description": "Public. Returns store categories, featured stores and featured products."
+          }
+        },
+        {
+          "name": "Categories",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/categories?type=store",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"],
+              "query": [{ "key": "type", "value": "store", "description": "Optional: `store` or `product`" }]
+            },
+            "description": "Public. List active categories with children. `type` filter is optional."
+          }
+        },
+        {
+          "name": "List Stores",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/stores?category_id={{categoryId}}&city=Riyadh&search=صيدلية",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores"],
+              "query": [
+                { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
+                { "key": "city", "value": "Riyadh", "description": "Optional filter" },
+                { "key": "search", "value": "صيدلية", "description": "Optional name search" }
+              ]
+            },
+            "description": "Public. Paginated active stores, ordered by rating."
+          }
+        },
+        {
+          "name": "Show Store",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{storeId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{storeId}}"]
+            },
+            "description": "Public. Store details. Returns 404 if the store is inactive."
+          }
+        },
+        {
+          "name": "Store Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/stores/{{storeId}}/products?category_id={{categoryId}}&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stores", "{{storeId}}", "products"],
+              "query": [
+                { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
+                { "key": "search", "value": "", "description": "Optional name search" }
+              ]
+            },
+            "description": "Public. Paginated purchasable products for a store."
+          }
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/products?store_id={{storeId}}&category_id={{categoryId}}&search=باراسيتامول",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "store_id", "value": "{{storeId}}", "description": "Optional filter" },
+                { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
+                { "key": "search", "value": "باراسيتامول", "description": "Optional search term" }
+              ]
+            },
+            "description": "Public. Paginated purchasable products, ordered by sales."
+          }
+        },
+        {
+          "name": "Show Product",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/products/{{productId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{productId}}"]
+            },
+            "description": "Public. Product details. Returns 404 if inactive."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Revokes the current app token."
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Current authenticated customer, with wallet."
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"email\": \"ahmed@example.com\",\n  \"phone\": \"0555012345\",\n  \"city\": \"Jeddah\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update profile. Optional `avatar` file (form-data to upload). Unknown fields are ignored."
+          }
+        },
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/addresses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "addresses"]
+            },
+            "description": "Current user's addresses, newest first."
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/addresses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "addresses"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"home\",\n  \"city\": \"Riyadh\",\n  \"district\": \"Al Olaya\",\n  \"street\": \"Prince Mohammed bin Abdulaziz\",\n  \"building\": \"12\",\n  \"full_address\": \"Riyadh, Al Olaya, Prince Mohammed St, Bld 12\",\n  \"latitude\": 24.7136,\n  \"longitude\": 46.6753,\n  \"is_default\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create an address. `label` in `home|work|other`. Setting `is_default: true` clears other defaults."
+          }
+        },
+        {
+          "name": "Set Default Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/addresses/{{addressId}}/default",
+              "host": ["{{base_url}}"],
+              "path": ["api", "addresses", "{{addressId}}", "default"]
+            },
+            "description": "Marks the address as the user's default."
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/addresses/{{addressId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "addresses", "{{addressId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"work\",\n  \"full_address\": \"Riyadh, Business Gate Tower B\",\n  \"city\": \"Riyadh\",\n  \"is_default\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Partial update of an address."
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/addresses/{{addressId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "addresses", "{{addressId}}"]
+            },
+            "description": "Deletes an address."
+          }
+        },
+        {
+          "name": "Show Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart"]
+            },
+            "description": "Current active cart (may be null if empty)."
+          }
+        },
+        {
+          "name": "Add Cart Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart/items",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "items"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"store_id\": 1,\n  \"product_id\": 1,\n  \"quantity\": 2,\n  \"options\": {\n    \"size\": \"large\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Add a product. Adding from a different store abandons the previous cart."
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart/items/{{cartItemId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "items", "{{cartItemId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Change the quantity of a cart item."
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart/items/{{cartItemId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "items", "{{cartItemId}}"]
+            },
+            "description": "Removes a cart item."
+          }
+        },
+        {
+          "name": "Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/checkout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "checkout"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"cash\",\n  \"address_id\": 1,\n  \"notes\": \"Please call on arrival\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Place an order from the active cart. `payment_method` in `card|apple_pay|wallet|cash`. If `address_id` is omitted, the default address is used. Wallet payments are charged immediately."
+          }
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders?status=new",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "status", "value": "new", "description": "Optional: new|preparing|ready_for_pickup|out_for_delivery|delivered|cancelled" }
+              ]
+            },
+            "description": "Paginated orders for the current customer."
+          }
+        },
+        {
+          "name": "Show Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{orderId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{orderId}}"]
+            },
+            "description": "Order details with store, items and review. Only the owner can view."
+          }
+        },
+        {
+          "name": "Review Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{orderId}}/review",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{orderId}}", "review"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"courier_rating\": 4,\n  \"comment\": \"خدمة ممتازة والتوصيل سريع\",\n  \"tags\": [\"fast_delivery\", \"good_packing\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Review a delivered order (422 otherwise, or if already reviewed)."
+          }
+        },
+        {
+          "name": "Show Wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wallet",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wallet"]
+            },
+            "description": "Wallet balance."
+          }
+        },
+        {
+          "name": "Wallet Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wallet/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wallet", "transactions"]
+            },
+            "description": "Paginated wallet transactions."
+          }
+        },
+        {
+          "name": "Top Up Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wallet/top-up",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wallet", "top-up"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Top up the wallet (demo: credits balance directly)."
+          }
+        },
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications"]
+            },
+            "description": "Paginated notifications for the current user."
+          }
+        },
+        {
+          "name": "Read Notification",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/{{notificationId}}/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "{{notificationId}}", "read"]
+            },
+            "description": "Mark a single notification as read."
+          }
+        },
+        {
+          "name": "Read All Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/read-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "read-all"]
+            },
+            "description": "Mark all unread notifications as read."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendor Dashboard API (/api/vendor)",
+      "description": "Endpoints used by the vendor store dashboard.",
+      "item": [
+        {
+          "name": "Register Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "auth", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pharmacy Owner\",\n  \"phone\": \"0555123456\",\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"store\": {\n    \"name_ar\": \"صيدلية النور\",\n    \"name_en\": \"Al Noor Pharmacy\",\n    \"category_id\": 1,\n    \"city\": \"Riyadh\",\n    \"address_ar\": \"الرياض، حي العليا، شارع الملك فهد\",\n    \"phone\": \"0112345678\",\n    \"cr_number\": \"1010123456\",\n    \"vat_number\": \"310121234500003\",\n    \"manager_name\": \"Ali Hassan\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a vendor user + store. Returns a token (ability `vendor`) — auto-saved to `vendor_token`. `store.category_id` must reference an existing store-type category."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('vendor_token', json.token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"0555123456\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Login as a vendor. Token auto-saved to `vendor_token`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('vendor_token', json.token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "auth", "me"]
+            },
+            "description": "Current vendor user + their authorized store. If the vendor owns multiple stores, pass `?store_id=` to select one."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "auth", "logout"]
+            },
+            "description": "Revokes the current vendor token."
+          }
+        },
+        {
+          "name": "Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/dashboard/overview",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "dashboard", "overview"]
+            },
+            "description": "KPIs (today's revenue/orders, active orders, stock stats) + recent orders + low stock products."
+          }
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products?search=باراسيتامول&category_id={{categoryId}}&stock=low",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products"],
+              "query": [
+                { "key": "search", "value": "باراسيتامول", "description": "Optional name/sku search" },
+                { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
+                { "key": "stock", "value": "low", "description": "Optional: `low` or `out`" }
+              ]
+            },
+            "description": "Paginated products of the vendor's store."
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_ar\": \"باراسيتامول 500مجم\",\n  \"name_en\": \"Paracetamol 500mg\",\n  \"category_id\": 1,\n  \"sku\": \"PCM-500\",\n  \"barcode\": \"6281001234567\",\n  \"price\": 2.50,\n  \"original_price\": 3.00,\n  \"cost_price\": 1.20,\n  \"stock\": 150,\n  \"min_stock_alert\": 20,\n  \"unit_ar\": \"شريط\",\n  \"unit_en\": \"strip\",\n  \"country_of_origin\": \"KSA\",\n  \"storage_method\": \"Keep in cool dry place\",\n  \"storage_temp\": \"ambient\",\n  \"expiry_date\": \"2027-12-31\",\n  \"is_active\": true,\n  \"is_prescription_required\": false,\n  \"description_ar\": \"مسكن وخافض للحرارة\",\n  \"description_en\": \"Pain reliever and fever reducer\",\n  \"options\": {\n    \"dosage\": \"500mg\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Create a product. Optional `image` file (form-data). `storage_temp` in `ambient|chilled|frozen`."
+          }
+        },
+        {
+          "name": "Show Product",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products/{{productId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products", "{{productId}}"]
+            },
+            "description": "Product details. Scoped to the vendor's store."
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products/{{productId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products", "{{productId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_ar\": \"باراسيتامول 500مجم\",\n  \"price\": 2.75,\n  \"min_stock_alert\": 25,\n  \"is_active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Partial product update. Optional `image` file (form-data)."
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products/{{productId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products", "{{productId}}"]
+            },
+            "description": "Deletes a product."
+          }
+        },
+        {
+          "name": "Adjust Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products/{{productId}}/stock-adjustments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products", "{{productId}}", "stock-adjustments"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delta\": 50,\n  \"type\": \"restock\",\n  \"reason\": \"New shipment arrived\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Adjust stock. `delta` is non-zero (negative to reduce). `type` in `sale|restock|correction|waste`."
+          }
+        },
+        {
+          "name": "Stock History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/products/{{productId}}/stock-adjustments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "products", "{{productId}}", "stock-adjustments"]
+            },
+            "description": "Latest 20 stock adjustments for the product."
+          }
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/orders?status=new&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "orders"],
+              "query": [
+                { "key": "status", "value": "new", "description": "Optional: new|preparing|ready_for_pickup|out_for_delivery|delivered|cancelled" },
+                { "key": "search", "value": "", "description": "Optional order number / customer name / phone" }
+              ]
+            },
+            "description": "Paginated store orders + per-status counts."
+          }
+        },
+        {
+          "name": "Show Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/orders/{{orderId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "orders", "{{orderId}}"]
+            },
+            "description": "Order details with items and store."
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/orders/{{orderId}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "orders", "{{orderId}}", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"preparing\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Advance the order status. Valid flow: new → preparing → ready_for_pickup → out_for_delivery → delivered. Invalid transitions return 422."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/orders/{{orderId}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "orders", "{{orderId}}", "cancel"]
+            },
+            "description": "Cancel an order (422 if delivered/cancelled). Wallet-paid orders are refunded."
+          }
+        },
+        {
+          "name": "Set Item Packed",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/orders/{{orderId}}/items/{{orderItemId}}/packed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "orders", "{{orderId}}", "items", "{{orderItemId}}", "packed"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packed\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Mark a specific order item as packed/unpacked."
+          }
+        },
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/reviews?rating=5&replied=false&search=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "reviews"],
+              "query": [
+                { "key": "rating", "value": "5", "description": "Optional: 1-5" },
+                { "key": "replied", "value": "false", "description": "Optional: true/false" },
+                { "key": "search", "value": "", "description": "Optional customer / comment / order number" }
+              ]
+            },
+            "description": "Paginated store reviews + summary (average, count, distribution)."
+          }
+        },
+        {
+          "name": "Reply to Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/reviews/{{reviewId}}/reply",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "reviews", "{{reviewId}}", "reply"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reply\": \"شكراً لتقييمك! نسعد بخدمتك دائماً\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Reply to a customer review."
+          }
+        },
+        {
+          "name": "Show Store",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/store",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "store"]
+            },
+            "description": "The vendor's store profile."
+          }
+        },
+        {
+          "name": "Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/store",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "store"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_ar\": \"صيدلية النور\",\n  \"name_en\": \"Al Noor Pharmacy\",\n  \"city\": \"Riyadh\",\n  \"address_ar\": \"الرياض، حي العليا\",\n  \"phone\": \"0112345678\",\n  \"email\": \"vendor@example.com\",\n  \"prep_time_min\": 15,\n  \"delivery_fee\": 15,\n  \"min_order\": 50,\n  \"delivery_radius_km\": 20,\n  \"is_open_24_7\": true,\n  \"opening_time\": \"08:00\",\n  \"closing_time\": \"23:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update store settings. Optional `logo` / `cover_image` files (form-data)."
+          }
+        },
+        {
+          "name": "Update Store Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/store/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "store", "status"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"open\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Set store availability. `status` in `open|busy|closed`."
+          }
+        },
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/notifications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "notifications"]
+            },
+            "description": "Paginated store notifications + unread count."
+          }
+        },
+        {
+          "name": "Read Notification",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/notifications/{{notificationId}}/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "notifications", "{{notificationId}}", "read"]
+            },
+            "description": "Mark a single notification as read."
+          }
+        },
+        {
+          "name": "Read All Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/notifications/read-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "notifications", "read-all"]
+            },
+            "description": "Mark all unread notifications as read."
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendor/notifications/{{notificationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendor", "notifications", "{{notificationId}}"]
+            },
+            "description": "Delete a notification."
+          }
+        }
+      ]
+    }
+  ]
+}
