@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\App;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\StoreResource;
 use App\Http\Traits\ResponseTrait;
+use App\Models\Category;
 use App\Models\Store;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,6 +58,14 @@ class StoreController extends Controller
     {
         abort_unless($store->is_active, 404);
 
+        $categoryIds = $store->products()->purchasable()->distinct()->pluck('category_id')->filter();
+
+        $categoryMenus = Category::query()
+            ->whereIn('id', $categoryIds)
+            ->active()
+            ->orderBy('sort_order')
+            ->get();
+
         $products = $store->products()
             ->with('category')
             ->purchasable()
@@ -72,6 +82,7 @@ class StoreController extends Controller
 
         return $this->successReturn([
             'store' => new StoreResource($store),
+            'category_menus' => CategoryResource::collection($categoryMenus),
             'products' => ProductResource::collection($products),
             'pagination' => [
                 'current_page' => $products->currentPage(),
