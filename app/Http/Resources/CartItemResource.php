@@ -14,7 +14,7 @@ class CartItemResource extends JsonResource
             'product_id' => $this->product_id,
             'quantity' => $this->quantity,
             'unit_price' => (float) $this->unit_price,
-            'options' => $this->options,
+            // 'options' => $this->options,
             'subtotal' => (float) round($this->unit_price * $this->quantity, 2),
             'product' => ProductResource::make($this->whenLoaded('product')),
         ];

@@ -16,7 +16,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         $orders = $request->user()->orders()
-            ->with('store', 'items')
+            ->with('store', 'items', 'paymentMethod', 'review')
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->latest()
             ->paginate(15)
@@ -37,7 +37,7 @@ class OrderController extends Controller
     {
         abort_unless($order->user_id === $request->user()->id, 404);
 
-        $order->load('store', 'items', 'review');
+        $order->load('store', 'items', 'review', 'paymentMethod');
 
         return $this->successReturn([
             'order' => new OrderResource($order),

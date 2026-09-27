@@ -16,7 +16,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'address_id' => ['sometimes', 'exists:addresses,id'],
-            'payment_method' => ['required', Rule::in(['card', 'apple_pay', 'wallet', 'cash'])],
+            'payment_method' => ['required', Rule::exists('payment_methods', 'key')->where('is_active', true)],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }

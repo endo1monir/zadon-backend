@@ -117,7 +117,7 @@ class CheckoutController extends Controller
         });
 
         return $this->successReturn([
-            'order' => new OrderResource($order->load('items', 'store')),
+            'order' => new OrderResource($order->load('items', 'store', 'paymentMethod', 'review')),
         ], code: 201);
     }
 

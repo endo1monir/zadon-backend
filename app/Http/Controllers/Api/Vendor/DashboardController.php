@@ -38,7 +38,7 @@ class DashboardController extends BaseController
                 'total_units' => (int) $store->products()->sum('stock'),
             ],
             'recent_orders' => OrderResource::collection(
-                $store->orders()->with('items')->latest()->limit(5)->get()
+                $store->orders()->with('items', 'paymentMethod', 'review')->latest()->limit(5)->get()
             ),
             'low_stock_products' => VendorProductResource::collection($lowStock),
         ]);

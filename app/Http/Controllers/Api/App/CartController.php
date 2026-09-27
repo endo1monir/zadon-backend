@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\App;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\App\AddCartItemRequest;
 use App\Http\Requests\Api\App\UpdateCartItemRequest;
+use App\Http\Resources\AddressResource;
 use App\Http\Resources\CartResource;
+use App\Http\Resources\PaymentMethodResource;
 use App\Http\Traits\ResponseTrait;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,11 +22,7 @@ class CartController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $cart = $this->activeCart($request->user()->id);
-
-        return $this->successReturn([
-            'cart' => new CartResource($cart?->load('items.product', 'store')),
-        ]);
+        return $this->cartResponse($request, $this->activeCart($request->user()->id));
     }
 
     public function addItem(AddCartItemRequest $request): JsonResponse
@@ -67,9 +66,7 @@ class CartController extends Controller
             ]);
         }
 
-        return $this->successReturn([
-            'cart' => new CartResource($cart->load('items.product', 'store')),
-        ]);
+        return $this->cartResponse($request, $cart);
     }
 
     public function updateItem(UpdateCartItemRequest $request, CartItem $cartItem): JsonResponse
@@ -84,9 +81,7 @@ class CartController extends Controller
 
         $cartItem->update($request->validated());
 
-        return $this->successReturn([
-            'cart' => new CartResource($cart->load('items.product', 'store')),
-        ]);
+        return $this->cartResponse($request, $cart);
     }
 
     public function removeItem(Request $request, CartItem $cartItem): JsonResponse
@@ -97,8 +92,26 @@ class CartController extends Controller
 
         $cartItem->delete();
 
+        return $this->cartResponse($request, $cart);
+    }
+
+    private function cartResponse(Request $request, ?Cart $cart): JsonResponse
+    {
+        $address = $request->user()->addresses()
+            ->orderByDesc('is_default')
+            ->latest('id')
+            ->first();
+
+        $paymentMethods = PaymentMethod::query()
+            ->active()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
         return $this->successReturn([
-            'cart' => new CartResource($cart->load('items.product', 'store')),
+            'cart' => new CartResource($cart?->load('items.product', 'store')),
+            'payment_methods' => PaymentMethodResource::collection($paymentMethods),
+            'default_address' => $address ? new AddressResource($address) : null,
         ]);
     }
 

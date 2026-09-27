@@ -2,7 +2,7 @@
   "info": {
     "name": "Zadon API",
     "_postman_id": "8f3f2a1e-2b4c-4d6e-8a9b-1c2d3e4f5a6b",
-    "description": "# Zadon API — Postman Collection\n\nTwo APIs:\n- **Customer App API** — public endpoints under `/api` (home, categories, stores, products) + authenticated customer endpoints (auth, profile, addresses, cart, checkout, orders, reviews, wallet, notifications).\n- **Vendor Dashboard API** — all endpoints under `/api/vendor`.\n\n## Setup\n1. Set the `base_url` variable (default `http://127.0.0.1:8000`) to your local server. Run `php artisan serve` to start it.\n2. Log in or register — the **token is captured automatically** into the `app_token` / `vendor_token` collection variables via the response test scripts.\n3. Update the shared **ID variables** (`storeId`, `productId`, `orderId`, etc.) to real IDs returned by your data.\n\n> File upload fields (`avatar`, `image`, `logo`, `cover_image`) are optional. To test them, switch the request body to `form-data` and add the file field.\n\n## Terrains\n- Auth: `Authorization: Bearer {{app_token}}` for the App API, `Bearer {{vendor_token}}` for the Vendor API.",
+    "description": "# Zadon API â€” Postman Collection\n\nTwo APIs:\n- **Customer App API** â€” public endpoints under `/api` (home, categories, stores, products) + authenticated customer endpoints (auth, profile, addresses, cart, checkout, orders, reviews, wallet, notifications).\n- **Vendor Dashboard API** â€” all endpoints under `/api/vendor`.\n\n## Setup\n1. Set the `base_url` variable (default `http://127.0.0.1:8000`) to your local server. Run `php artisan serve` to start it.\n2. Log in or register â€” the **token is captured automatically** into the `app_token` / `vendor_token` collection variables via the response test scripts.\n3. Update the shared **ID variables** (`storeId`, `productId`, `orderId`, etc.) to real IDs returned by your data.\n\n> File upload fields (`avatar`, `image`, `logo`, `cover_image`) are optional. To test them, switch the request body to `form-data` and add the file field.\n\n## Terrains\n- Auth: `Authorization: Bearer {{app_token}}` for the App API, `Bearer {{vendor_token}}` for the Vendor API.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -16,6 +16,7 @@
     { "key": "orderItemId", "value": "1" },
     { "key": "cartItemId", "value": "1" },
     { "key": "addressId", "value": "1" },
+    { "key": "paymentMethodId", "value": "1" },
     { "key": "notificationId", "value": "1" },
     { "key": "reviewId", "value": "1" }
   ],
@@ -42,7 +43,7 @@
               "raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"phone\": \"0555012345\",\n  \"email\": \"ahmed@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"city\": \"Riyadh\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Create a customer account. Returns a Sanctum `token` (ability `app`) — auto-saved to `app_token`. Optional `avatar` file field (jpg/jpeg/png/webp max 2MB)."
+            "description": "Create a customer account. Returns a Sanctum `token` (ability `app`) â€” auto-saved to `app_token`. Optional `avatar` file field (jpg/jpeg/png/webp max 2MB)."
           },
           "event": [
             {
@@ -123,13 +124,13 @@
             "method": "GET",
             "header": [{ "key": "Accept", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/stores?category_id={{categoryId}}&city=Riyadh&search=صيدلية",
+              "raw": "{{base_url}}/api/stores?category_id={{categoryId}}&city=Riyadh&search=ØµÙŠØ¯Ù„ÙŠØ©",
               "host": ["{{base_url}}"],
               "path": ["api", "stores"],
               "query": [
                 { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
                 { "key": "city", "value": "Riyadh", "description": "Optional filter" },
-                { "key": "search", "value": "صيدلية", "description": "Optional name search" }
+                { "key": "search", "value": "ØµÙŠØ¯Ù„ÙŠØ©", "description": "Optional name search" }
               ]
             },
             "description": "Public. Paginated active stores, ordered by rating."
@@ -171,13 +172,13 @@
             "method": "GET",
             "header": [{ "key": "Accept", "value": "application/json" }],
             "url": {
-              "raw": "{{base_url}}/api/products?store_id={{storeId}}&category_id={{categoryId}}&search=باراسيتامول",
+              "raw": "{{base_url}}/api/products?store_id={{storeId}}&category_id={{categoryId}}&search=Ø¨Ø§Ø±Ø§Ø³ÙŠØªØ§Ù…ÙˆÙ„",
               "host": ["{{base_url}}"],
               "path": ["api", "products"],
               "query": [
                 { "key": "store_id", "value": "{{storeId}}", "description": "Optional filter" },
                 { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
-                { "key": "search", "value": "باراسيتامول", "description": "Optional search term" }
+                { "key": "search", "value": "Ø¨Ø§Ø±Ø§Ø³ÙŠØªØ§Ù…ÙˆÙ„", "description": "Optional search term" }
               ]
             },
             "description": "Public. Paginated purchasable products, ordered by sales."
@@ -343,6 +344,41 @@
           }
         },
         {
+          "name": "List Payment Methods",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payment-methods",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment-methods"]
+            },
+            "description": "Global list of payment methods the app supports, active ones only, in display order. No auth required."
+          }
+        },
+        {
+          "name": "Upload Payment Method Icon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payment-methods/{{paymentMethodId}}/icon",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment-methods", "{{paymentMethodId}}", "icon"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "icon", "type": "file", "src": [] }]
+            },
+            "description": "Uploads the payment method icon. Switch the body to `form-data` to attach a file."
+          }
+        },
+        {
           "name": "Show Cart",
           "request": {
             "method": "GET",
@@ -355,7 +391,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "cart"]
             },
-            "description": "Current active cart (may be null if empty)."
+            "description": "Current active cart (empty totals if none), plus the global `payment_methods` list and `default_address` (falls back to the newest address)."
           }
         },
         {
@@ -377,7 +413,7 @@
               "raw": "{\n  \"store_id\": 1,\n  \"product_id\": 1,\n  \"quantity\": 2,\n  \"options\": {\n    \"size\": \"large\"\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Add a product. Adding from a different store abandons the previous cart."
+            "description": "Add a product. Adding from a different store abandons the previous cart. Also returns the global `payment_methods` and `default_address`."
           }
         },
         {
@@ -399,7 +435,7 @@
               "raw": "{\n  \"quantity\": 3\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Change the quantity of a cart item."
+            "description": "Change the quantity of a cart item. Also returns the global `payment_methods` and `default_address`."
           }
         },
         {
@@ -415,7 +451,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "cart", "items", "{{cartItemId}}"]
             },
-            "description": "Removes a cart item."
+            "description": "Removes a cart item. Also returns the global `payment_methods` and `default_address`."
           }
         },
         {
@@ -491,7 +527,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 5,\n  \"courier_rating\": 4,\n  \"comment\": \"خدمة ممتازة والتوصيل سريع\",\n  \"tags\": [\"fast_delivery\", \"good_packing\"]\n}",
+              "raw": "{\n  \"rating\": 5,\n  \"courier_rating\": 4,\n  \"comment\": \"Ø®Ø¯Ù…Ø© Ù…Ù…ØªØ§Ø²Ø© ÙˆØ§Ù„ØªÙˆØµÙŠÙ„ Ø³Ø±ÙŠØ¹\",\n  \"tags\": [\"fast_delivery\", \"good_packing\"]\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Review a delivered order (422 otherwise, or if already reviewed)."
@@ -620,10 +656,10 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Pharmacy Owner\",\n  \"phone\": \"0555123456\",\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"store\": {\n    \"name_ar\": \"صيدلية النور\",\n    \"name_en\": \"Al Noor Pharmacy\",\n    \"category_id\": 1,\n    \"city\": \"Riyadh\",\n    \"address_ar\": \"الرياض، حي العليا، شارع الملك فهد\",\n    \"phone\": \"0112345678\",\n    \"cr_number\": \"1010123456\",\n    \"vat_number\": \"310121234500003\",\n    \"manager_name\": \"Ali Hassan\"\n  }\n}",
+              "raw": "{\n  \"name\": \"Pharmacy Owner\",\n  \"phone\": \"0555123456\",\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"store\": {\n    \"name_ar\": \"ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù†ÙˆØ±\",\n    \"name_en\": \"Al Noor Pharmacy\",\n    \"category_id\": 1,\n    \"city\": \"Riyadh\",\n    \"address_ar\": \"Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø­ÙŠ Ø§Ù„Ø¹Ù„ÙŠØ§ØŒ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ù„Ùƒ ÙÙ‡Ø¯\",\n    \"phone\": \"0112345678\",\n    \"cr_number\": \"1010123456\",\n    \"vat_number\": \"310121234500003\",\n    \"manager_name\": \"Ali Hassan\"\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Create a vendor user + store. Returns a token (ability `vendor`) — auto-saved to `vendor_token`. `store.category_id` must reference an existing store-type category."
+            "description": "Create a vendor user + store. Returns a token (ability `vendor`) â€” auto-saved to `vendor_token`. `store.category_id` must reference an existing store-type category."
           },
           "event": [
             {
@@ -728,11 +764,11 @@
               { "key": "Authorization", "value": "Bearer {{vendor_token}}" }
             ],
             "url": {
-              "raw": "{{base_url}}/api/vendor/products?search=باراسيتامول&category_id={{categoryId}}&stock=low",
+              "raw": "{{base_url}}/api/vendor/products?search=Ø¨Ø§Ø±Ø§Ø³ÙŠØªØ§Ù…ÙˆÙ„&category_id={{categoryId}}&stock=low",
               "host": ["{{base_url}}"],
               "path": ["api", "vendor", "products"],
               "query": [
-                { "key": "search", "value": "باراسيتامول", "description": "Optional name/sku search" },
+                { "key": "search", "value": "Ø¨Ø§Ø±Ø§Ø³ÙŠØªØ§Ù…ÙˆÙ„", "description": "Optional name/sku search" },
                 { "key": "category_id", "value": "{{categoryId}}", "description": "Optional filter" },
                 { "key": "stock", "value": "low", "description": "Optional: `low` or `out`" }
               ]
@@ -756,7 +792,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name_ar\": \"باراسيتامول 500مجم\",\n  \"name_en\": \"Paracetamol 500mg\",\n  \"category_id\": 1,\n  \"sku\": \"PCM-500\",\n  \"barcode\": \"6281001234567\",\n  \"price\": 2.50,\n  \"original_price\": 3.00,\n  \"cost_price\": 1.20,\n  \"stock\": 150,\n  \"min_stock_alert\": 20,\n  \"unit_ar\": \"شريط\",\n  \"unit_en\": \"strip\",\n  \"country_of_origin\": \"KSA\",\n  \"storage_method\": \"Keep in cool dry place\",\n  \"storage_temp\": \"ambient\",\n  \"expiry_date\": \"2027-12-31\",\n  \"is_active\": true,\n  \"is_prescription_required\": false,\n  \"description_ar\": \"مسكن وخافض للحرارة\",\n  \"description_en\": \"Pain reliever and fever reducer\",\n  \"options\": {\n    \"dosage\": \"500mg\"\n  }\n}",
+              "raw": "{\n  \"name_ar\": \"Ø¨Ø§Ø±Ø§Ø³ÙŠØªØ§Ù…ÙˆÙ„ 500Ù…Ø¬Ù…\",\n  \"name_en\": \"Paracetamol 500mg\",\n  \"category_id\": 1,\n  \"sku\": \"PCM-500\",\n  \"barcode\": \"6281001234567\",\n  \"price\": 2.50,\n  \"original_price\": 3.00,\n  \"cost_price\": 1.20,\n  \"stock\": 150,\n  \"min_stock_alert\": 20,\n  \"unit_ar\": \"Ø´Ø±ÙŠØ·\",\n  \"unit_en\": \"strip\",\n  \"country_of_origin\": \"KSA\",\n  \"storage_method\": \"Keep in cool dry place\",\n  \"storage_temp\": \"ambient\",\n  \"expiry_date\": \"2027-12-31\",\n  \"is_active\": true,\n  \"is_prescription_required\": false,\n  \"description_ar\": \"Ù…Ø³ÙƒÙ† ÙˆØ®Ø§ÙØ¶ Ù„Ù„Ø­Ø±Ø§Ø±Ø©\",\n  \"description_en\": \"Pain reliever and fever reducer\",\n  \"options\": {\n    \"dosage\": \"500mg\"\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Create a product. Optional `image` file (form-data). `storage_temp` in `ambient|chilled|frozen`."
@@ -794,7 +830,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name_ar\": \"باراسيتامول 500مجم\",\n  \"price\": 2.75,\n  \"min_stock_alert\": 25,\n  \"is_active\": true\n}",
+              "raw": "{\n  \"name_ar\": \"Ø¨Ø§Ø±Ø§Ø³ÙŠØªØ§Ù…ÙˆÙ„ 500Ù…Ø¬Ù…\",\n  \"price\": 2.75,\n  \"min_stock_alert\": 25,\n  \"is_active\": true\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Partial product update. Optional `image` file (form-data)."
@@ -909,7 +945,7 @@
               "raw": "{\n  \"status\": \"preparing\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Advance the order status. Valid flow: new → preparing → ready_for_pickup → out_for_delivery → delivered. Invalid transitions return 422."
+            "description": "Advance the order status. Valid flow: new â†’ preparing â†’ ready_for_pickup â†’ out_for_delivery â†’ delivered. Invalid transitions return 422."
           }
         },
         {
@@ -987,7 +1023,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"reply\": \"شكراً لتقييمك! نسعد بخدمتك دائماً\"\n}",
+              "raw": "{\n  \"reply\": \"Ø´ÙƒØ±Ø§Ù‹ Ù„ØªÙ‚ÙŠÙŠÙ…Ùƒ! Ù†Ø³Ø¹Ø¯ Ø¨Ø®Ø¯Ù…ØªÙƒ Ø¯Ø§Ø¦Ù…Ø§Ù‹\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Reply to a customer review."
@@ -1025,7 +1061,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name_ar\": \"صيدلية النور\",\n  \"name_en\": \"Al Noor Pharmacy\",\n  \"city\": \"Riyadh\",\n  \"address_ar\": \"الرياض، حي العليا\",\n  \"phone\": \"0112345678\",\n  \"email\": \"vendor@example.com\",\n  \"prep_time_min\": 15,\n  \"delivery_fee\": 15,\n  \"min_order\": 50,\n  \"delivery_radius_km\": 20,\n  \"is_open_24_7\": true,\n  \"opening_time\": \"08:00\",\n  \"closing_time\": \"23:00\"\n}",
+              "raw": "{\n  \"name_ar\": \"ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù†ÙˆØ±\",\n  \"name_en\": \"Al Noor Pharmacy\",\n  \"city\": \"Riyadh\",\n  \"address_ar\": \"Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø­ÙŠ Ø§Ù„Ø¹Ù„ÙŠØ§\",\n  \"phone\": \"0112345678\",\n  \"email\": \"vendor@example.com\",\n  \"prep_time_min\": 15,\n  \"delivery_fee\": 15,\n  \"min_order\": 50,\n  \"delivery_radius_km\": 20,\n  \"is_open_24_7\": true,\n  \"opening_time\": \"08:00\",\n  \"closing_time\": \"23:00\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Update store settings. Optional `logo` / `cover_image` files (form-data)."

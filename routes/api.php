@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\App\ContactController;
 use App\Http\Controllers\Api\App\HomeController;
 use App\Http\Controllers\Api\App\NotificationController;
 use App\Http\Controllers\Api\App\OrderController;
+use App\Http\Controllers\Api\App\PaymentMethodController;
 use App\Http\Controllers\Api\App\PolicyController;
 use App\Http\Controllers\Api\App\ProductController;
 use App\Http\Controllers\Api\App\ProfileController;
@@ -33,6 +34,7 @@ Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp'])->middlewar
 Route::get('/home', [HomeController::class, 'index']);
 Route::get('/cities', [CityController::class, 'index']);
 Route::get('/socials', [SocialController::class, 'index']);
+Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
 Route::get('/policy', [PolicyController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/stores', [StoreController::class, 'index']);
@@ -51,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/contact-us', [ContactController::class, 'store']);
     Route::post('/categories/{category}/icon', [CategoryController::class, 'uploadIcon']);
     Route::post('/socials/{social}/icon', [SocialController::class, 'uploadIcon']);
+    Route::post('/payment-methods/{paymentMethod}/icon', [PaymentMethodController::class, 'uploadIcon']);
 
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::post('/addresses', [AddressController::class, 'store']);

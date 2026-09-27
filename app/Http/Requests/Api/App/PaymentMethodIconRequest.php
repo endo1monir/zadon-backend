@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\App;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreReviewRequest extends FormRequest
+class PaymentMethodIconRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,8 +14,7 @@ class StoreReviewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'rating' => ['required', 'integer', 'between:1,5'],
-            'comment' => ['nullable', 'string', 'max:1000'],
+            'icon' => ['required', 'file', 'mimes:svg,jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 }

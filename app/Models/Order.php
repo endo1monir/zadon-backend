@@ -47,6 +47,11 @@ class Order extends Model
         return $this->belongsTo(Address::class, 'delivery_address_id');
     }
 
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class, 'payment_method', 'key');
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);

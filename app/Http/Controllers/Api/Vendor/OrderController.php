@@ -16,7 +16,7 @@ class OrderController extends BaseController
     public function index(Request $request): JsonResponse
     {
         $orders = $this->managedStore()->orders()
-            ->with('items')
+            ->with('items', 'paymentMethod', 'review')
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when(
                 $request->filled('search'),
@@ -50,7 +50,7 @@ class OrderController extends BaseController
 
     public function show(Order $order): JsonResponse
     {
-        $order = $this->managedStore()->orders()->with('items', 'store')->findOrFail($order->id);
+        $order = $this->managedStore()->orders()->with('items', 'store', 'paymentMethod', 'review')->findOrFail($order->id);
 
         return $this->successReturn([
             'order' => new OrderResource($order),
@@ -76,7 +76,7 @@ class OrderController extends BaseController
         $this->notifyCustomer($order);
 
         return $this->successReturn([
-            'order' => new OrderResource($order->fresh()->load('items', 'store')),
+            'order' => new OrderResource($order->fresh()->load('items', 'store', 'paymentMethod', 'review')),
         ]);
     }
 
@@ -97,7 +97,7 @@ class OrderController extends BaseController
         $this->notifyCustomer($order, cancelled: true);
 
         return $this->successReturn([
-            'order' => new OrderResource($order->fresh()->load('items', 'store')),
+            'order' => new OrderResource($order->fresh()->load('items', 'store', 'paymentMethod', 'review')),
         ]);
     }
 
