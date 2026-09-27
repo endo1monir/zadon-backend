@@ -22,6 +22,21 @@ class HomeController extends Controller
     public function index(): JsonResponse
     {
 
+       //before caching
+        // return $this->successReturn([
+        //     'banners' => BannerResource::collection(
+        //         Banner::query()->orderBy('id')->get()
+        //     ),
+        //     'categories' => CategoryResource::collection(
+        //         Category::query()->active()->whereNull('parent_id')->orderBy('sort_order')->get()
+        //     ),
+        //     'featured_stores' => StoreResource::collection(
+        //         Store::query()->active()->with('category')->orderByDesc('rating')->limit(5)->get()
+        //     ),
+        //             ]);
+
+        //after caching
+
         $banners = Cache::remember(
             'home:banners',
             now()->addHours(6),
@@ -57,4 +72,5 @@ class HomeController extends Controller
             'featured_stores' => StoreResource::collection($featuredStores),
         ]);
     }
+
 }
