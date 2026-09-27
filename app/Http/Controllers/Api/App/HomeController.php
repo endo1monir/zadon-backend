@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Store;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -20,19 +21,40 @@ class HomeController extends Controller
 
     public function index(): JsonResponse
     {
+
+        $banners = Cache::remember(
+            'home:banners',
+            now()->addHours(6),
+            fn () => Banner::query()
+                ->orderBy('id')
+                ->get()
+        );
+
+        $categories = Cache::remember(
+            'home:categories',
+            now()->addHours(6),
+            fn () => Category::query()
+                ->active()
+                ->whereNull('parent_id')
+                ->orderBy('sort_order')
+                ->get()
+        );
+
+        $featuredStores = Cache::remember(
+            'home:featured_stores',
+            now()->addMinutes(30),
+            fn () => Store::query()
+                ->active()
+                ->with('category')
+                ->orderByDesc('rating')
+                ->limit(5)
+                ->get()
+        );
+
         return $this->successReturn([
-            'banners' => BannerResource::collection(
-                Banner::query()->orderBy('id')->get()
-            ),
-            'categories' => CategoryResource::collection(
-                Category::query()->active()->whereNull('parent_id')->orderBy('sort_order')->get()
-            ),
-            'featured_stores' => StoreResource::collection(
-                Store::query()->active()->with('category')->orderByDesc('rating')->limit(5)->get()
-            ),
-            // 'featured_products' => ProductResource::collection(
-            //     Product::query()->with('store', 'category')->purchasable()->orderByDesc('sales_count')->limit(10)->get()
-            // ),
+            'banners' => BannerResource::collection($banners),
+            'categories' => CategoryResource::collection($categories),
+            'featured_stores' => StoreResource::collection($featuredStores),
         ]);
     }
 }
