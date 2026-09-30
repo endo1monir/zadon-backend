@@ -90,17 +90,17 @@ class ProductController extends BaseController
 
         $adjustment = DB::transaction(function () use ($request, $product) {
             $previous = $product->stock;
-            $new = max(0, $previous + $request->integer('delta'));
+            $delta = $request->integer('delta');
+            $new = max(0, $previous + $delta);
 
             $product->update(['stock' => $new]);
 
             return $product->stockAdjustments()->create([
                 'store_id' => $product->store_id,
-                'type' => $request->input('type', 'correction'),
-                'quantity' => $request->integer('delta'),
+                'type' => $request->input('type', $delta > 0 ? 'restock' : 'correction'),
+                'quantity' => $delta,
                 'previous_stock' => $previous,
                 'new_stock' => $new,
-                'reason' => $request->input('reason'),
             ]);
         });
 

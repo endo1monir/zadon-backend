@@ -16,7 +16,6 @@ class StockAdjustmentResource extends JsonResource
             'quantity' => $this->quantity,
             'previous_stock' => $this->previous_stock,
             'new_stock' => $this->new_stock,
-            'reason' => $this->reason,
             'created_at' => $this->created_at,
         ];
     }
