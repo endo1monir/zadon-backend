@@ -129,8 +129,18 @@ return [
     | storage. By default, no PHP classes will be unserialized from your
     | cache to prevent gadget chain attacks if your APP_KEY is leaked.
     |
+    | Cache::remember() in HomeController stores Eloquent models, so those
+    | models and the collection wrapper must be listed here. Without them a
+    | cache read returns __PHP_Incomplete_Class and the response 500s.
+    | Add any further model you start caching, otherwise reads will fail.
+    |
     */
 
-    'serializable_classes' => false,
+    'serializable_classes' => [
+        'Illuminate\Database\Eloquent\Collection',
+        'App\Models\Banner',
+        'App\Models\Category',
+        'App\Models\Store',
+    ],
 
 ];

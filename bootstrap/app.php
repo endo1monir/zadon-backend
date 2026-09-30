@@ -22,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'abilities' => CheckAbilities::class,
         ]);
+        $middleware->append([
+        \App\Http\Middleware\QueryCounter::class,
+       ]);
 
         $middleware->api(append: [SetLocale::class]);
     })

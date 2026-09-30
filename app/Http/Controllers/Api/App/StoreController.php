@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\Store;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class StoreController extends Controller
 {
@@ -18,29 +19,87 @@ class StoreController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Store::query()
-            ->active()
-            ->with('category')
-            ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
-            ->when($request->filled('city'), fn ($q) => $q->where('city', $request->string('city')))
-            ->when(
-                $request->filled('search'),
-                fn ($q) => $q->where(fn ($inner) => $inner
-                    ->where('name_ar', 'like', "%{$request->string('search')}%")
-                    ->orWhere('name_en', 'like', "%{$request->string('search')}%"))
-            );
 
-        $stores = $query->orderByDesc('rating')->paginate(20)->withQueryString();
+            $categoryId = $request->filled('category_id') ? $request->integer('category_id'): null;
+            $city = $request->filled('city') ? (string) $request->string('city'): null;
+            $search = $request->filled('search')? (string) $request->string('search') : null;
+            $page = $request->integer('page', 1);
 
-        return $this->successReturn([
-            'stores' => StoreResource::collection($stores),
-            'pagination' => [
-                'current_page' => $stores->currentPage(),
-                'last_page' => $stores->lastPage(),
-                'per_page' => $stores->perPage(),
-                'total' => $stores->total(),
-            ],
-        ]);
+            $cacheKey = 'stores:list:' . md5(json_encode([
+                'category_id' => $categoryId,
+                'city' => $city,
+                'page' => $page,
+            ]));
+
+
+            $getStores = function () use (
+                $categoryId,
+                $city,
+                $search
+            ) {
+                $stores = Store::query()
+                    ->active()
+                    ->with('category')
+                    ->when(
+                        $categoryId,
+                        fn ($q) => $q->where(
+                            'category_id',
+                            $categoryId
+                        )
+                    )
+                    ->when(
+                        $city,
+                        fn ($q) => $q->where(
+                            'city',
+                            $city
+                        )
+                    )
+                    ->when(
+                        $search,
+                        fn ($q) => $q->where(
+                            fn ($inner) => $inner
+                                ->where(
+                                    'name_ar',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                                ->orWhere(
+                                    'name_en',
+                                    'like',
+                                    "%{$search}%"
+                                )
+                        )
+                    )
+                    ->orderByDesc('rating')
+                    ->paginate(20);
+
+                return [
+                    'stores' => StoreResource::collection(
+                        $stores->items()
+                    )->resolve(),
+
+                    'pagination' => [
+                        'current_page' => $stores->currentPage(),
+                        'last_page' => $stores->lastPage(),
+                        'per_page' => $stores->perPage(),
+                        'total' => $stores->total(),
+                    ],
+                ];
+            };
+
+
+            if ($search) {
+                $data = $getStores();
+            } else {
+                $data = Cache::tags(['stores'])->remember(
+                    $cacheKey,
+                    now()->addMinutes(10),
+                    $getStores
+                );
+            }
+
+            return $this->successReturn($data);
+
     }
 
     public function show(Store $store): JsonResponse
@@ -58,38 +117,114 @@ class StoreController extends Controller
     {
         abort_unless($store->is_active, 404);
 
-        $categoryIds = $store->products()->purchasable()->distinct()->pluck('category_id')->filter();
+       $categoryId = $request->filled('category_id')? $request->integer('category_id')  : null;
 
-        $categoryMenus = Category::query()
-            ->whereIn('id', $categoryIds)
-            ->active()
-            ->orderBy('sort_order')
-            ->get();
+       $search = $request->string('search')->toString();
 
-        $products = $store->products()
-            ->with('category')
-            ->purchasable()
-            ->when(
-                $request->filled('search'),
-                fn ($q) => $q->where(fn ($inner) => $inner
-                    ->where('name_ar', 'like', "%{$request->string('search')}%")
-                    ->orWhere('name_en', 'like', "%{$request->string('search')}%"))
-            )
-            ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
-            ->orderByDesc('sales_count')
-            ->paginate(20)
-            ->withQueryString();
+       $page = $request->integer('page', 1);
+
+      $storeData = Cache::tags(['stores'])->remember(
+            "store:{$store->id}",
+            now()->addHour(),
+            function () use ($store) {
+                return (new StoreResource($store))
+                    ->resolve();
+            }
+        );
+
+     $categoryMenus = Cache::tags(['products'])->remember(
+        "store:{$store->id}:categories",
+        now()->addHour(),
+        function () use ($store) {
+            $categoryIds = $store->products()
+                ->purchasable()
+                ->distinct()
+                ->pluck('category_id')
+                ->filter();
+            return CategoryResource::collection(
+                Category::query()
+                    ->whereIn('id', $categoryIds)
+                    ->active()
+                    ->orderBy('sort_order')
+                    ->get()
+            )->resolve();
+        }
+        );
+
+        $productsKey = 'store:'.$store->id.':products:' . md5(json_encode([
+            'category_id' => $categoryId,
+            'page' => $page,
+        ]));
+
+        $productsData = function () use ( $store,$categoryId,$search) {
+            $products = $store->products()
+                ->with('category')
+                ->purchasable()
+                ->when(
+                    $search !== '',
+                    fn ($q) => $q->where(
+                        fn ($inner) => $inner
+                            ->where(
+                                'name_ar',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'name_en',
+                                'like',
+                                "%{$search}%"
+                            )
+                    )
+                )
+                ->when(
+                    $categoryId,
+                    fn ($q) => $q->where(
+                        'category_id',
+                        $categoryId
+                    )
+                )
+                ->orderByDesc('sales_count')
+                ->paginate(20);
+
+
+            return [
+                'products' => ProductResource::collection(
+                    $products->items()
+                )->resolve(),
+                'pagination' => [
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                ],
+            ];
+    };
+
+        if ($search !== '') {
+            $products = $productsData();
+
+        } else {
+
+            $products = Cache::tags([
+                'products',
+                "store:{$store->id}"
+            ])->remember(
+                $productsKey,
+                now()->addMinutes(10),
+                $productsData
+            );
+
+        }
+
 
         return $this->successReturn([
-            'store' => new StoreResource($store),
-            'category_menus' => CategoryResource::collection($categoryMenus),
-            'products' => ProductResource::collection($products),
-            'pagination' => [
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total(),
-            ],
+            'store' => $storeData,
+
+            'category_menus' => $categoryMenus,
+
+            'products' => $products['products'],
+
+            'pagination' => $products['pagination'],
         ]);
     }
 }
