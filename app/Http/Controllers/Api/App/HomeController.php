@@ -31,7 +31,7 @@ class HomeController extends Controller
         //         Category::query()->active()->whereNull('parent_id')->orderBy('sort_order')->get()
         //     ),
         //     'featured_stores' => StoreResource::collection(
-        //         Store::query()->active()->with('category')->orderByDesc('rating')->limit(5)->get()
+        //         Store::query()->active()->with('category', 'city')->orderByDesc('rating')->limit(5)->get()
         //     ),
         //             ]);
 
@@ -60,7 +60,7 @@ class HomeController extends Controller
             now()->addMinutes(30),
             fn () => Store::query()
                 ->active()
-                ->with('category')
+                ->with('category', 'city')
                 ->orderByDesc('rating')
                 ->limit(5)
                 ->get()

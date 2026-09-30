@@ -20,8 +20,7 @@ function checkoutCart(User $user): Cart
     $store = Store::create([
         'owner_id' => $user->id,
         'name_ar' => 'صيدلية',
-        'address_ar' => 'الرياض',
-        'city' => 'Riyadh',
+        'address' => 'الرياض',
     ]);
 
     $product = Product::create([

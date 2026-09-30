@@ -70,7 +70,7 @@ class CheckoutController extends Controller
                 'total' => $total,
                 'delivery_address_id' => $address->id ?? null,
                 'delivery_address' => $address?->full_address,
-                'city' => $address?->city ?? $cart->store->city,
+                'city' => $cart->store?->city?->name_ar,
                 'customer_name' => $user->name,
                 'customer_phone' => $user->phone,
                 'notes' => $request->notes,

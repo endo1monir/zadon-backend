@@ -12,27 +12,29 @@ class StoreController extends BaseController
     public function show(): JsonResponse
     {
         return $this->successReturn([
-            'store' => new StoreResource($this->managedStore()->load('category')),
+            'store' => new StoreResource($this->managedStore()->load('category', 'city')),
         ]);
     }
 
     public function update(UpdateStoreRequest $request): JsonResponse
     {
         $store = $this->managedStore();
-        $data = $request->safe()->except(['logo', 'cover_image']);
+        $logo = $request->file('store.logo') ?? $request->file('logo');
+        $coverImage = $request->file('store.cover_image') ?? $request->file('cover_image');
+        $data = $request->safe()->except(['logo', 'cover_image', 'store']);
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('stores', 'public');
+        if ($logo) {
+            $data['logo'] = $logo->store('stores', 'public');
         }
 
-        if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store('stores', 'public');
+        if ($coverImage) {
+            $data['cover_image'] = $coverImage->store('stores', 'public');
         }
 
         $store->update($data);
 
         return $this->successReturn([
-            'store' => new StoreResource($store->load('category')),
+            'store' => new StoreResource($store->load('category', 'city')),
         ]);
     }
 
@@ -42,7 +44,7 @@ class StoreController extends BaseController
         $store->update(['status' => $request->status]);
 
         return $this->successReturn([
-            'store' => new StoreResource($store),
+            'store' => new StoreResource($store->load('category', 'city')),
         ]);
     }
 }

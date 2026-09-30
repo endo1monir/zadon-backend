@@ -21,12 +21,14 @@ class StoreController extends Controller
     {
 
             $categoryId = $request->filled('category_id') ? $request->integer('category_id'): null;
+            $cityId = $request->filled('city_id') ? $request->integer('city_id') : null;
             $city = $request->filled('city') ? (string) $request->string('city'): null;
             $search = $request->filled('search')? (string) $request->string('search') : null;
             $page = $request->integer('page', 1);
 
             $cacheKey = 'stores:list:' . md5(json_encode([
                 'category_id' => $categoryId,
+                'city_id' => $cityId,
                 'city' => $city,
                 'page' => $page,
             ]));
@@ -34,12 +36,13 @@ class StoreController extends Controller
 
             $getStores = function () use (
                 $categoryId,
+                $cityId,
                 $city,
                 $search
             ) {
                 $stores = Store::query()
                     ->active()
-                    ->with('category')
+                    ->with('category', 'city')
                     ->when(
                         $categoryId,
                         fn ($q) => $q->where(
@@ -48,10 +51,19 @@ class StoreController extends Controller
                         )
                     )
                     ->when(
-                        $city,
+                        $cityId,
                         fn ($q) => $q->where(
+                            'city_id',
+                            $cityId
+                        )
+                    )
+                    ->when(
+                        $city,
+                        fn ($q) => $q->whereHas(
                             'city',
-                            $city
+                            fn ($inner) => $inner
+                                ->where('name_ar', $city)
+                                ->orWhere('name_en', $city)
                         )
                     )
                     ->when(
@@ -106,7 +118,7 @@ class StoreController extends Controller
     {
         abort_unless($store->is_active, 404);
 
-        $store->load('category');
+        $store->load('category', 'city');
 
         return $this->successReturn([
             'store' => new StoreResource($store),
@@ -127,7 +139,7 @@ class StoreController extends Controller
             "store:{$store->id}",
             now()->addHour(),
             function () use ($store) {
-                return (new StoreResource($store))
+                return (new StoreResource($store->loadMissing('category', 'city')))
                     ->resolve();
             }
         );

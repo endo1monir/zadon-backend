@@ -27,8 +27,7 @@ function cartProduct(User $owner): Product
     $store = Store::create([
         'owner_id' => $owner->id,
         'name_ar' => 'صيدلية',
-        'address_ar' => 'الرياض',
-        'city' => 'Riyadh',
+        'address' => 'الرياض',
     ]);
 
     return Product::create([

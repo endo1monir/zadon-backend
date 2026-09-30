@@ -24,8 +24,7 @@ function makeStore(User $owner): Store
     return Store::create([
         'owner_id' => $owner->id,
         'name_ar' => 'متجر',
-        'address_ar' => 'الرياض',
-        'city' => 'Riyadh',
+        'address' => 'الرياض',
     ]);
 }
 

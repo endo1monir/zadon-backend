@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -13,6 +14,11 @@ class StoreSeeder extends Seeder
     {
         $pharmacyCategory = Category::where('slug', 'pharmacies')->firstOrFail();
         $supermarketCategory = Category::where('slug', 'supermarkets')->firstOrFail();
+
+        $cities = [
+            'الرياض' => City::where('name_ar', 'الرياض')->firstOrFail(),
+            'جدة' => City::where('name_ar', 'جدة')->firstOrFail(),
+        ];
 
         $stores = [
             [
@@ -65,11 +71,10 @@ class StoreSeeder extends Seeder
             Store::create([
                 'owner_id' => $owner->id,
                 'category_id' => $store['category']->id,
+                'city_id' => $cities[$store['city']]->id,
                 'name_ar' => $store['name_ar'],
                 'name_en' => $store['name_en'],
-                'city' => $store['city'],
-                'address_ar' => "فرع {$store['city']} - طريق الملك فهد",
-                'address_en' => "King Fahd Road - {$store['name_en']}",
+                'address' => "فرع {$store['city']} - طريق الملك فهد",
                 'phone' => $owner->phone,
                 'email' => $owner->email,
                 'cr_number' => 'CR-'.$owner->id.'00001',

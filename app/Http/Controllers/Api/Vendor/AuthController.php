@@ -9,27 +9,48 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends BaseController
 {
     public function register(VendorRegisterRequest $request): JsonResponse
     {
-        $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'password' => $request->password,
-            'role' => 'vendor',
-        ]);
+        $logo = $request->file('store.logo');
+        $coverImage = $request->file('store.cover_image');
 
-        $store = $user->stores()->create($request->input('store') + ['is_verified' => true]);
+        [$user, $store] = DB::transaction(function () use ($request, $logo, $coverImage): array {
+            $user = User::create([
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'password' => $request->password,
+                'role' => 'vendor',
+            ]);
+
+            $storeData = Arr::except($request->validated('store'), ['logo', 'cover_image']);
+
+            if ($logo) {
+                $storeData['logo'] = $logo->store('stores', 'public');
+            }
+
+            if ($coverImage) {
+                $storeData['cover_image'] = $coverImage->store('stores', 'public');
+            }
+
+            $store = $user->stores()->create($storeData + ['is_verified' => true]);
+
+            return [$user, $store];
+        });
+
+        $store->refresh()->load('category', 'city');
 
         return $this->successReturn([
             'token' => $user->createToken('vendor', ['vendor'])->plainTextToken,
             'user' => new UserResource($user->load('city')),
-            'stores' => StoreResource::collection($user->stores()->get()),
-            'store' => new StoreResource($store),
+            'stores' => StoreResource::collection($user->stores()->with('category', 'city')->get()),
+            'store' => new StoreResource($store->load('category', 'city')),
         ], code: 201);
     }
 
@@ -41,10 +62,18 @@ class AuthController extends BaseController
             return $this->failReturn('auth.failed');
         }
 
+        $accessToken = $user->createToken('vendor', ['vendor']);
+        $token = $accessToken->plainTextToken;
+
+        if ($request->filled('fcm_token')) {
+            $accessToken->accessToken->forceFill(['fcm_token' => $request->validated('fcm_token')])->save();
+        }
+
         return $this->successReturn([
-            'token' => $user->createToken('vendor', ['vendor'])->plainTextToken,
+            'token' => $token,
+            'fcm_token' => $accessToken->accessToken->fcm_token,
             'user' => new UserResource($user->load('city')),
-            'stores' => StoreResource::collection($user->stores()->get()),
+            'stores' => StoreResource::collection($user->stores()->with('category', 'city')->get()),
         ]);
     }
 
@@ -54,7 +83,7 @@ class AuthController extends BaseController
 
         return $this->successReturn([
             'user' => new UserResource($user->load('city')),
-            'store' => new StoreResource($this->managedStore()->load('category')),
+            'store' => new StoreResource($this->managedStore()->load('category', 'city')),
         ]);
     }
 

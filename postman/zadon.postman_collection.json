@@ -12,6 +12,8 @@
     { "key": "storeId", "value": "1" },
     { "key": "productId", "value": "1" },
     { "key": "categoryId", "value": "1" },
+    { "key": "cityId", "value": "1" },
+    { "key": "fcmToken", "value": "" },
     { "key": "orderId", "value": "1" },
     { "key": "orderItemId", "value": "1" },
     { "key": "cartItemId", "value": "1" },
@@ -656,7 +658,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Pharmacy Owner\",\n  \"phone\": \"0555123456\",\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"store\": {\n    \"name_ar\": \"ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù†ÙˆØ±\",\n    \"name_en\": \"Al Noor Pharmacy\",\n    \"category_id\": 1,\n    \"city\": \"Riyadh\",\n    \"address_ar\": \"Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø­ÙŠ Ø§Ù„Ø¹Ù„ÙŠØ§ØŒ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ù„Ùƒ ÙÙ‡Ø¯\",\n    \"phone\": \"0112345678\",\n    \"cr_number\": \"1010123456\",\n    \"vat_number\": \"310121234500003\",\n    \"manager_name\": \"Ali Hassan\"\n  }\n}",
+              "raw": "{\n  \"name\": \"Pharmacy Owner\",\n  \"phone\": \"0555123456\",\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"store\": {\n    \"name_ar\": \"ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù†ÙˆØ±\",\n    \"name_en\": \"Al Noor Pharmacy\",\n    \"category_id\": 1,\n    \"city_id\": {{cityId}},\n    \"address\": \"Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø­ÙŠ Ø§Ù„Ø¹Ù„ÙŠØ§ØŒ Ø´Ø§Ø±Ø¹ Ø§Ù„Ù…Ù„Ùƒ ÙÙ‡Ø¯\",\n    \"phone\": \"0112345678\",\n    \"cr_number\": \"1010123456\",\n    \"vat_number\": \"310121234500003\",\n    \"manager_name\": \"Ali Hassan\"\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Create a vendor user + store. Returns a token (ability `vendor`) â€” auto-saved to `vendor_token`. `store.category_id` must reference an existing store-type category."
@@ -689,10 +691,10 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone\": \"0555123456\",\n  \"password\": \"password123\"\n}",
+              "raw": "{\n  \"phone\": \"0555123456\",\n  \"password\": \"password123\",\n  \"fcm_token\": \"{{fcmToken}}\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Login as a vendor. Token auto-saved to `vendor_token`."
+            "description": "Login as a vendor. Token auto-saved to `vendor_token`. Optional `fcm_token` is stored on the generated token row in `personal_access_tokens` and used for push notifications."
           },
           "event": [
             {
@@ -1061,7 +1063,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name_ar\": \"ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù†ÙˆØ±\",\n  \"name_en\": \"Al Noor Pharmacy\",\n  \"city\": \"Riyadh\",\n  \"address_ar\": \"Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø­ÙŠ Ø§Ù„Ø¹Ù„ÙŠØ§\",\n  \"phone\": \"0112345678\",\n  \"email\": \"vendor@example.com\",\n  \"prep_time_min\": 15,\n  \"delivery_fee\": 15,\n  \"min_order\": 50,\n  \"delivery_radius_km\": 20,\n  \"is_open_24_7\": true,\n  \"opening_time\": \"08:00\",\n  \"closing_time\": \"23:00\"\n}",
+              "raw": "{\n  \"name_ar\": \"ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù†ÙˆØ±\",\n  \"name_en\": \"Al Noor Pharmacy\",\n  \"city_id\": {{cityId}},\n  \"address\": \"Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø­ÙŠ Ø§Ù„Ø¹Ù„ÙŠØ§\",\n  \"phone\": \"0112345678\",\n  \"email\": \"vendor@example.com\",\n  \"prep_time_min\": 15,\n  \"delivery_fee\": 15,\n  \"min_order\": 50,\n  \"delivery_radius_km\": 20,\n  \"is_open_24_7\": true,\n  \"opening_time\": \"08:00\",\n  \"closing_time\": \"23:00\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "description": "Update store settings. Optional `logo` / `cover_image` files (form-data)."
