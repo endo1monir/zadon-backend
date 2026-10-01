@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['store_id', 'user_id', 'order_id', 'customer_name', 'customer_avatar', 'rating', 'courier_rating', 'comment', 'tags', 'store_reply', 'store_reply_date', 'published'])]
 class Review extends Model
 {
+    use HasFactory;
+
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);

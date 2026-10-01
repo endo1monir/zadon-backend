@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\QueryCounter;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,17 +18,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function (): void {
             Route::middleware('api')->prefix('api/vendor')->group(base_path('routes/vendor.php'));
+            Route::middleware('web')->group(base_path('routes/admin.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'abilities' => CheckAbilities::class,
+            'admin' => EnsureUserIsAdmin::class,
         ]);
         $middleware->append([
-        \App\Http\Middleware\QueryCounter::class,
-       ]);
+            QueryCounter::class,
+        ]);
 
         $middleware->api(append: [SetLocale::class]);
+
+        $middleware->redirectGuestsTo(fn (Request $request) => route('admin.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

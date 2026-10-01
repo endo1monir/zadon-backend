@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +48,16 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Authenticate the current test as an admin and return the created user.
+ */
+function actingAsAdmin(): User
+{
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    test()->actingAs($admin);
+
+    return $admin;
 }

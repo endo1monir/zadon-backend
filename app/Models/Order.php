@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Fillable(['order_number', 'user_id', 'store_id', 'status', 'payment_method', 'payment_status', 'subtotal', 'vat_amount', 'delivery_fee', 'total', 'delivery_address_id', 'delivery_address', 'city', 'customer_name', 'customer_phone', 'notes', 'courier_name', 'courier_phone', 'courier_eta_minutes', 'accepted_at', 'prepared_at', 'ready_at', 'out_for_delivery_at', 'delivered_at', 'cancelled_at'])]
 class Order extends Model
 {
+    use HasFactory;
+
     public const STATUSES = ['new', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered', 'cancelled'];
 
     public const STATUS_TIMESTAMPS = [

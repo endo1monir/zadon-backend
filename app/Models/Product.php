@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['store_id', 'category_id', 'name_ar', 'name_en', 'sku', 'barcode', 'price', 'original_price', 'cost_price', 'stock', 'min_stock_alert', 'unit_ar', 'unit_en', 'image', 'country_of_origin', 'storage_method', 'is_prescription_required', 'storage_temp', 'expiry_date', 'is_active', 'sales_count', 'description_ar', 'description_en', 'options'])]
 class Product extends Model
 {
+    use HasFactory;
+
     #[Scope]
     protected function purchasable(Builder $query): Builder
     {
