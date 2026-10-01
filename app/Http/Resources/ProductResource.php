@@ -19,13 +19,9 @@ class ProductResource extends JsonResource
             'stock' => $this->stock,
             'unit' => app()->getLocale() === 'ar' ? $this->unit_ar : $this->unit_en,
             'image' => api_image($this->image),
-            'is_prescription_required' => $this->is_prescription_required,
-            'storage_temp' => $this->storage_temp,
             'country_of_origin' => $this->country_of_origin,
-            'expiry_date' => $this->expiry_date,
             'sales_count' => $this->sales_count,
             'description' => app()->getLocale() === 'ar' ? $this->description_ar : $this->description_en,
-            'options' => $this->options,
             'category' => CategoryResource::make($this->whenLoaded('category')),
             'store' => StoreResource::make($this->whenLoaded('store')),
         ];

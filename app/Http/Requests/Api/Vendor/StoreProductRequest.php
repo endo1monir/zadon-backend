@@ -17,6 +17,8 @@ class StoreProductRequest extends FormRequest
         return [
             'name_ar' => ['required', 'string', 'max:255'],
             'name_en' => ['nullable', 'string', 'max:255'],
+            'description_ar' => ['nullable', 'string', 'max:5000'],
+            'description_en' => ['nullable', 'string', 'max:5000'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'sku' => ['nullable', 'string', 'max:255'],
             'barcode' => ['nullable', 'string', 'max:255'],
@@ -34,8 +36,6 @@ class StoreProductRequest extends FormRequest
             'expiry_date' => ['nullable', 'date'],
             'is_active' => ['sometimes', 'boolean'],
             'is_prescription_required' => ['sometimes', 'boolean'],
-            'description_ar' => ['nullable', 'string', 'max:5000'],
-            'description_en' => ['nullable', 'string', 'max:5000'],
             'options' => ['nullable', 'array'],
         ];
     }
