@@ -12,6 +12,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
+            ['name' => 'مدير النظام', 'email' => 'admin@zadon.sa', 'phone' => '0500000000', 'role' => 'admin', 'city' => 'الرياض'],
             ['name' => 'أحمد المطيري', 'email' => 'ahmed@zadon.sa', 'phone' => '0501111111', 'role' => 'vendor', 'city' => 'الرياض'],
             ['name' => 'سارة العتيبي', 'email' => 'sara@zadon.sa', 'phone' => '0502222222', 'role' => 'vendor', 'city' => 'جدة'],
             ['name' => 'خالد الحربي', 'email' => 'khaled@zadon.sa', 'phone' => '0503333333', 'role' => 'vendor', 'city' => 'الرياض'],

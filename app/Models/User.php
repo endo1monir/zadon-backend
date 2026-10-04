@@ -28,10 +28,32 @@ class User extends Authenticatable
         return $this->role === 'vendor';
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
+    }
+
+    #[Scope]
+    protected function customer(Builder $query): Builder
+    {
+        return $query->where('role', 'customer');
+    }
+
     #[Scope]
     protected function vendor(Builder $query): Builder
     {
         return $query->where('role', 'vendor');
+    }
+
+    #[Scope]
+    protected function admin(Builder $query): Builder
+    {
+        return $query->where('role', 'admin');
     }
 
     public function stores(): HasMany
@@ -72,6 +94,19 @@ class User extends Authenticatable
     public function notifications(): HasMany
     {
         return $this->hasMany(UserNotification::class);
+    }
+
+    /**
+     * Every device token registered against this user's access tokens.
+     *
+     * @return list<string>
+     */
+    public function routeNotificationForFcm(): array
+    {
+        return $this->tokens()
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->all();
     }
 
     /**

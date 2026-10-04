@@ -30,9 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
             QueryCounter::class,
         ]);
 
+        $middleware->web(append: [SetLocale::class]);
         $middleware->api(append: [SetLocale::class]);
 
         $middleware->redirectGuestsTo(fn (Request $request) => route('admin.login'));
+        $middleware->redirectUsersTo(fn (Request $request) => route('admin.dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

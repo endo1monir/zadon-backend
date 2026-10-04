@@ -5,6 +5,8 @@ use App\Models\City;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -252,11 +254,73 @@ describe('category management', function () {
         expect(Category::whereKey($category->id)->exists())->toBeTrue();
     });
 
-    it('deletes an unused category', function () {
+    it('uploads a category logo', function () {
+        Storage::fake('public');
+
+        $this->post(route('admin.categories.store'), [
+            'type' => 'store',
+            'name_ar' => 'بقالة',
+            'name_en' => 'Groceries',
+            'icon' => UploadedFile::fake()->create('groceries.png', 10, 'image/jpeg'),
+        ])->assertRedirect(route('admin.categories.index'));
+
+        $path = Category::where('name_en', 'Groceries')->value('icon');
+
+        expect($path)->not->toBeNull();
+        Storage::disk('public')->assertExists($path);
+    });
+
+    it('replaces a category logo and deletes the old file', function () {
+        Storage::fake('public');
         $category = Category::factory()->forStores()->create();
+        $category->update(['icon' => 'categories/old.png']);
+        Storage::disk('public')->put('categories/old.png', 'x');
+
+        $this->put(route('admin.categories.update', $category), [
+            'type' => 'store',
+            'name_ar' => $category->name_ar,
+            'icon' => UploadedFile::fake()->create('new.png', 10, 'image/jpeg'),
+        ])->assertRedirect(route('admin.categories.index'));
+
+        $newPath = $category->refresh()->icon;
+
+        expect($newPath)->not->toBe('categories/old.png');
+        Storage::disk('public')->assertMissing('categories/old.png');
+        Storage::disk('public')->assertExists($newPath);
+    });
+
+    it('keeps the existing category logo when no new file is uploaded', function () {
+        $category = Category::factory()->forStores()->create(['icon' => 'categories/keep.png']);
+
+        $this->put(route('admin.categories.update', $category), [
+            'type' => 'store',
+            'name_ar' => 'محدث',
+        ])->assertRedirect(route('admin.categories.index'));
+
+        expect($category->refresh()->icon)->toBe('categories/keep.png');
+    });
+
+    it('rejects a non image category logo', function () {
+        Storage::fake('public');
+
+        $this->post(route('admin.categories.store'), [
+            'type' => 'store',
+            'name_ar' => 'بقالة',
+            'icon' => UploadedFile::fake()->create('notes.txt', 10, 'text/plain'),
+        ])->assertSessionHasErrors('icon');
+
+        expect(Category::where('name_ar', 'بقالة')->exists())->toBeFalse();
+    });
+
+    it('deletes an unused category', function () {
+        Storage::fake('public');
+        $category = Category::factory()->forStores()->create();
+        $category->update(['icon' => 'categories/gone.png']);
+        Storage::disk('public')->put('categories/gone.png', 'x');
 
         $this->delete(route('admin.categories.destroy', $category))->assertRedirect();
 
         expect(Category::whereKey($category->id)->exists())->toBeFalse();
+        Storage::disk('public')->assertMissing('categories/gone.png');
     });
 });

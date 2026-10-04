@@ -25,7 +25,7 @@ class CategoryRequest extends FormRequest
             'name_ar' => ['required', 'string', 'max:255'],
             'name_en' => ['nullable', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'alpha_dash', Rule::unique('categories', 'slug')->ignore($category)],
-            'icon' => ['nullable', 'string', 'max:255'],
+            'icon' => ['nullable', 'image', 'mimes:svg,jpg,jpeg,png,webp', 'max:2048'],
             'parent_id' => [
                 'nullable',
                 'integer',
@@ -62,7 +62,7 @@ class CategoryRequest extends FormRequest
      */
     public function categoryAttributes(): array
     {
-        $attributes = $this->safe()->except('slug');
+        $attributes = $this->safe()->except(['icon', 'slug']);
         $category = $this->route('category');
 
         $attributes['slug'] = match (true) {

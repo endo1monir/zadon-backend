@@ -11,8 +11,10 @@ class SocialResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'icon' => api_image($this->icon),
+            'name_ar' => $this->name_ar,
+            'name_en' => $this->name_en,
+            'name' => $this->name_en ?: $this->name_ar,
+            'icon' => $this->icon_url,
             'link' => $this->link,
         ];
     }

@@ -16,10 +16,6 @@ class ReviewController extends BaseController
             ->with('order')
             ->when($request->filled('rating'), fn ($q) => $q->where('rating', $request->integer('rating')))
             ->when(
-                $request->filled('replied'),
-                fn ($q) => $request->boolean('replied') ? $q->whereNotNull('store_reply') : $q->whereNull('store_reply')
-            )
-            ->when(
                 $request->filled('search'),
                 fn ($q) => $q->where(fn ($inner) => $inner
                     ->where('customer_name', 'like', "%{$request->string('search')}%")

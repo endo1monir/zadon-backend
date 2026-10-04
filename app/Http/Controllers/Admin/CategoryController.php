@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\HandlesUploads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CategoryRequest;
 use App\Models\Category;
@@ -11,6 +12,8 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    use HandlesUploads;
+
     public function index(Request $request): View
     {
         $categories = Category::query()
@@ -46,7 +49,13 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request): RedirectResponse
     {
-        Category::create($request->categoryAttributes());
+        $attributes = $request->categoryAttributes();
+
+        if ($request->hasFile('icon')) {
+            $attributes['icon'] = $this->storeImage($request->file('icon'), 'categories');
+        }
+
+        Category::create($attributes);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
@@ -61,7 +70,14 @@ class CategoryController extends Controller
 
     public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
-        $category->update($request->categoryAttributes());
+        $attributes = $request->categoryAttributes();
+
+        if ($request->hasFile('icon')) {
+            $this->deleteImage($category->icon);
+            $attributes['icon'] = $this->storeImage($request->file('icon'), 'categories');
+        }
+
+        $category->update($attributes);
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
@@ -82,6 +98,8 @@ class CategoryController extends Controller
         if ($category->stores()->exists() || $category->products()->exists()) {
             return back()->with('error', 'This category is in use and cannot be deleted.');
         }
+
+        $this->deleteImage($category->icon);
 
         $category->delete();
 

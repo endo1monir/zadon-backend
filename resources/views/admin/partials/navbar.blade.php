@@ -1,4 +1,4 @@
-﻿<header
+<header
     class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 xl:border-b"
     x-data="{
         isApplicationMenuOpen: false,
@@ -14,7 +14,7 @@
             <button
                 class="hidden xl:flex items-center justify-center w-10 h-10 text-gray-500 border border-gray-200 rounded-lg dark:border-gray-800 dark:text-gray-400 lg:h-11 lg:w-11"
                 :class="{ 'bg-gray-100 dark:bg-white/[0.03]': !$store.sidebar.isExpanded }"
-                @click="$store.sidebar.toggleExpanded()" aria-label="Toggle Sidebar">
+                @click="$store.sidebar.toggleExpanded()" aria-label="{{ __('admin.nav.toggle_sidebar') }}">
                 <svg x-show="!$store.sidebar.isMobileOpen" width="16" height="12" viewBox="0 0 16 12" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -33,7 +33,7 @@
             <button
                 class="flex xl:hidden items-center justify-center w-10 h-10 text-gray-500 rounded-lg dark:text-gray-400 lg:h-11 lg:w-11"
                 :class="{ 'bg-gray-100 dark:bg-white/[0.03]': $store.sidebar.isMobileOpen }"
-                @click="$store.sidebar.toggleMobileOpen()" aria-label="Toggle Mobile Menu">
+                @click="$store.sidebar.toggleMobileOpen()" aria-label="{{ __('admin.nav.toggle_mobile_menu') }}">
                 <svg x-show="!$store.sidebar.isMobileOpen" width="16" height="12" viewBox="0 0 16 12" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -74,13 +74,50 @@
                             fill="currentColor" />
                     </svg>
                 </button>
+
+                <!-- Language Switcher -->
+                <div x-data="{ open: false }" x-on:keydown.escape.window="open = false" class="relative">
+                    <button type="button"
+                        class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        @click="open = !open" aria-label="{{ __('admin.nav.language') }}" aria-haspopup="true"
+                        :aria-expanded="open">
+                        <svg class="stroke-current" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a13.5 13.5 0 010 18M12 3a13.5 13.5 0 000 18"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+
+                    <div x-show="open" x-cloak @click.outside="open = false"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                        class="absolute end-0 z-50 mt-2 w-40 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900">
+                        <div class="p-1.5">
+                            @foreach ([
+                                'en' => __('admin.nav.english'),
+                                'ar' => __('admin.nav.arabic'),
+                            ] as $switchLocale => $switchLabel)
+                                <form method="POST" action="{{ route('admin.locale.update') }}">
+                                    @csrf
+                                    <input type="hidden" name="locale" value="{{ $switchLocale }}">
+                                    <button type="submit"
+                                        class="menu-item menu-dropdown-item menu-dropdown-item-inactive w-full @if(app()->getLocale() === $switchLocale) menu-item-active @endif"
+                                        @if(app()->getLocale() === $switchLocale) aria-current="true" @endif>
+                                        <span>{{ $switchLabel }}</span>
+                                    </button>
+                                </form>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
 
             @auth
             <div x-data="{ open: false }" x-on:keydown.escape.window="open = false" class="relative">
                 <button
                     class="flex items-center gap-3 rounded-full border border-gray-200 bg-white p-1 pe-4 transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-white/5"
-                    @click="open = !open" aria-label="Account menu" aria-haspopup="true" :aria-expanded="open">
+                    @click="open = !open" aria-label="{{ __('admin.nav.account_menu') }}" aria-haspopup="true" :aria-expanded="open">
                     <x-admin::avatar :src="api_image(auth()->user()->avatar)"
                         :alt="auth()->user()->name" :fallback="str(auth()->user()->name)->substr(0, 1)" size="sm" />
                     <span class="text-theme-sm hidden text-gray-700 dark:text-gray-300 sm:block">
@@ -108,8 +145,8 @@
                                 <path d="M3 12L12 3L21 12M5 9.5V20H9.5V14H14.5V20H19V9.5" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            View site
-                        </a>
+{{ __('admin.nav.back_to_site') }}
+                            </a>
                         <form method="POST" action="{{ route('admin.logout') }}">
                             @csrf
                             <button type="submit" class="menu-item menu-dropdown-item menu-dropdown-item-inactive w-full">
@@ -118,7 +155,7 @@
                                     <path d="M15 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H15M16 16L21 12L16 8M21 12H9" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                Logout
+                                {{ __('admin.nav.logout') }}
                             </button>
                         </form>
                     </div>

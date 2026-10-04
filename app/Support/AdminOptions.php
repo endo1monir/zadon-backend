@@ -16,8 +16,8 @@ class AdminOptions
     public static function categoryTypes(): array
     {
         return [
-            'store' => 'Store category',
-            'product' => 'Product category',
+            'store' => __('admin.options.category_types.store'),
+            'product' => __('admin.options.category_types.product'),
         ];
     }
 
@@ -27,9 +27,9 @@ class AdminOptions
     public static function storeStatuses(): array
     {
         return [
-            'open' => 'Open',
-            'busy' => 'Busy',
-            'closed' => 'Closed',
+            'open' => __('admin.options.store_statuses.open'),
+            'busy' => __('admin.options.store_statuses.busy'),
+            'closed' => __('admin.options.store_statuses.closed'),
         ];
     }
 
@@ -39,12 +39,12 @@ class AdminOptions
     public static function orderStatuses(): array
     {
         return [
-            'new' => 'New',
-            'preparing' => 'Preparing',
-            'ready_for_pickup' => 'Ready for pickup',
-            'out_for_delivery' => 'Out for delivery',
-            'delivered' => 'Delivered',
-            'cancelled' => 'Cancelled',
+            'new' => __('admin.options.order_statuses.new'),
+            'preparing' => __('admin.options.order_statuses.preparing'),
+            'ready_for_pickup' => __('admin.options.order_statuses.ready_for_pickup'),
+            'out_for_delivery' => __('admin.options.order_statuses.out_for_delivery'),
+            'delivered' => __('admin.options.order_statuses.delivered'),
+            'cancelled' => __('admin.options.order_statuses.cancelled'),
         ];
     }
 
@@ -54,10 +54,10 @@ class AdminOptions
     public static function orderPaymentStatuses(): array
     {
         return [
-            'pending' => 'Pending',
-            'paid' => 'Paid',
-            'failed' => 'Failed',
-            'refunded' => 'Refunded',
+            'pending' => __('admin.options.order_payment_statuses.pending'),
+            'paid' => __('admin.options.order_payment_statuses.paid'),
+            'failed' => __('admin.options.order_payment_statuses.failed'),
+            'refunded' => __('admin.options.order_payment_statuses.refunded'),
         ];
     }
 
@@ -67,9 +67,9 @@ class AdminOptions
     public static function userRoles(): array
     {
         return [
-            'customer' => 'Customer',
-            'store_owner' => 'Store owner',
-            'admin' => 'Admin',
+            'customer' => __('admin.options.user_roles.customer'),
+            'vendor' => __('admin.options.user_roles.vendor'),
+            'admin' => __('admin.options.user_roles.admin'),
         ];
     }
 
@@ -79,9 +79,25 @@ class AdminOptions
     public static function productStorageTemps(): array
     {
         return [
-            'ambient' => 'Ambient',
-            'chilled' => 'Chilled',
-            'frozen' => 'Frozen',
+            'ambient' => __('admin.options.product_storage_temps.ambient'),
+            'chilled' => __('admin.options.product_storage_temps.chilled'),
+            'frozen' => __('admin.options.product_storage_temps.frozen'),
+        ];
+    }
+
+    /**
+     * The ratings a review can carry, keyed by value.
+     *
+     * @return array<int, string>
+     */
+    public static function reviewRatings(): array
+    {
+        return [
+            5 => trans_choice('admin.cards.stars', 5, ['count' => 5]),
+            4 => trans_choice('admin.cards.stars', 4, ['count' => 4]),
+            3 => trans_choice('admin.cards.stars', 3, ['count' => 3]),
+            2 => trans_choice('admin.cards.stars', 2, ['count' => 2]),
+            1 => trans_choice('admin.cards.stars', 1, ['count' => 1]),
         ];
     }
 
@@ -91,10 +107,10 @@ class AdminOptions
     public static function notificationTypes(): array
     {
         return [
-            'order' => 'Order',
-            'inventory' => 'Inventory',
-            'system' => 'System',
-            'alert' => 'Alert',
+            'order' => __('admin.options.notification_types.order'),
+            'inventory' => __('admin.options.notification_types.inventory'),
+            'system' => __('admin.options.notification_types.system'),
+            'alert' => __('admin.options.notification_types.alert'),
         ];
     }
 
@@ -106,10 +122,10 @@ class AdminOptions
     public static function orderPaymentMethods(): array
     {
         return [
-            'cash' => 'Cash',
-            'card' => 'Card',
-            'apple_pay' => 'Apple Pay',
-            'wallet' => 'Wallet',
+            'cash' => __('admin.options.order_payment_methods.cash'),
+            'card' => __('admin.options.order_payment_methods.card'),
+            'apple_pay' => __('admin.options.order_payment_methods.apple_pay'),
+            'wallet' => __('admin.options.order_payment_methods.wallet'),
         ];
     }
 

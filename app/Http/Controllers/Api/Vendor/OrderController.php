@@ -61,12 +61,7 @@ class OrderController extends BaseController
     {
         $order = $this->managedStore()->orders()->findOrFail($order->id);
 
-        $flow = [
-            'new' => ['preparing'],
-            'preparing' => ['ready_for_pickup'],
-            'ready_for_pickup' => ['out_for_delivery'],
-            'out_for_delivery' => ['delivered'],
-        ];
+        $flow = Order::STATUS_FLOW;
 
         if (! in_array($request->status, $flow[$order->status] ?? [], true)) {
             return $this->failReturn('messages.invalid_status_transition');
@@ -117,20 +112,7 @@ class OrderController extends BaseController
 
     private function notifyCustomer(Order $order, bool $cancelled = false): void
     {
-        if (! $order->user_id) {
-            return;
-        }
-
-        $message = $cancelled
-            ? ['title_ar' => 'تم إلغاء طلبك', 'title_en' => 'Your order was cancelled']
-            : ['title_ar' => "حدث جديد على طلبك {$order->order_number}", 'title_en' => "Your order {$order->order_number} was updated"];
-
-        $order->user->notifications()->create($message + [
-            'type' => 'order',
-            'order_id' => $order->id,
-            'action_label_ar' => 'متابعة الطلب',
-            'action_label_en' => 'Track order',
-        ]);
+        $order->notifyCustomerStatusChange($cancelled);
     }
 
     private function refundWallet(Order $order): void
