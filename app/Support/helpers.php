@@ -1,12 +1,21 @@
 <?php
 
+use Illuminate\Support\Facades\Storage;
+
 if (! function_exists('api_image')) {
-    function api_image(?string $path): ?string
+    /**
+     * Build the full public URL for a stored image path.
+     */
+    function api_image(?string $path, string $disk = 'public'): ?string
     {
         if (! $path) {
             return null;
         }
 
-        return str_starts_with($path, 'http') ? $path : asset('storage/'.$path);
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        return Storage::disk($disk)->url(ltrim($path, '/'));
     }
 }
