@@ -47,9 +47,9 @@ class AdminRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The name is required.',
-            'email.required' => 'The email is required.',
-            'password.required' => 'The password is required.',
+            'name.required' => __('admin.validation.admin_name_required'),
+            'email.required' => __('admin.validation.admin_email_required'),
+            'password.required' => __('admin.validation.admin_password_required'),
         ];
     }
 

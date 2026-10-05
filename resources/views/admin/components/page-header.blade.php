@@ -1,4 +1,8 @@
-@props(['title' => 'Page'])
+@props(['title' => null])
+
+@php
+    $title = $title ?? __('admin.nav.items.dashboard');
+@endphp
 
 <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
     <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
@@ -13,7 +17,7 @@
                         class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
                         href="{{ route('admin.dashboard') }}"
                     >
-                        Home
+                        {{ __('admin.text.home') }}
                         <svg
                             class="stroke-current rtl:rotate-180"
                             width="17"

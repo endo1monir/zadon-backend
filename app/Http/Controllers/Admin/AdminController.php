@@ -59,7 +59,7 @@ class AdminController extends Controller
             'phone_verified_at' => $admin->phone ? now() : null,
         ])->save();
 
-        return redirect()->route('admin.admins.index')->with('success', 'Admin created successfully.');
+        return redirect()->route('admin.admins.index')->with('success', __('admin.flash.admin_created'));
     }
 
     public function edit(User $admin): View
@@ -81,37 +81,37 @@ class AdminController extends Controller
 
         if ($request->has('is_active') && ! $request->boolean('is_active') && $admin->is($request->user())) {
             return redirect()->route('admin.admins.edit', $admin)
-                ->withErrors(['is_active' => 'You cannot deactivate your own account.']);
+                ->withErrors(['is_active' => __('admin.flash.cannot_deactivate_self')]);
         }
 
         $admin->update($attributes);
 
-        return redirect()->route('admin.admins.index')->with('success', 'Admin updated successfully.');
+        return redirect()->route('admin.admins.index')->with('success', __('admin.flash.admin_updated'));
     }
 
     public function toggle(User $admin): RedirectResponse
     {
         if ($admin->is(request()->user())) {
             return redirect()->route('admin.admins.index')
-                ->with('error', 'You cannot deactivate your own account.');
+                ->with('error', __('admin.flash.cannot_deactivate_self'));
         }
 
         $admin->update(['is_active' => ! $admin->is_active]);
 
-        return redirect()->route('admin.admins.index')->with('success', 'Admin status updated.');
+        return redirect()->route('admin.admins.index')->with('success', __('admin.flash.admin_status_updated'));
     }
 
     public function destroy(User $admin): RedirectResponse
     {
         if ($admin->is(request()->user())) {
             return redirect()->route('admin.admins.index')
-                ->with('error', 'You cannot delete your own account.');
+                ->with('error', __('admin.flash.cannot_delete_self'));
         }
 
         $this->deleteImage($admin->avatar);
 
         $admin->delete();
 
-        return redirect()->route('admin.admins.index')->with('success', 'Admin deleted successfully.');
+        return redirect()->route('admin.admins.index')->with('success', __('admin.flash.admin_deleted'));
     }
 }

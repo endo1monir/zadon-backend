@@ -52,7 +52,7 @@ class PaymentMethodController extends Controller
         PaymentMethod::create($attributes);
 
         return redirect()->route('admin.payment-methods.index')
-            ->with('success', 'Payment method created successfully.');
+            ->with('success', __('admin.flash.payment_method_created'));
     }
 
     public function edit(PaymentMethod $paymentMethod): View
@@ -72,14 +72,14 @@ class PaymentMethodController extends Controller
         $paymentMethod->update($attributes);
 
         return redirect()->route('admin.payment-methods.index')
-            ->with('success', 'Payment method updated successfully.');
+            ->with('success', __('admin.flash.payment_method_updated'));
     }
 
     public function toggle(PaymentMethod $paymentMethod): RedirectResponse
     {
         $paymentMethod->update(['is_active' => ! $paymentMethod->is_active]);
 
-        return back()->with('success', 'Payment method status updated.');
+        return back()->with('success', __('admin.flash.payment_method_status_updated'));
     }
 
     public function destroy(PaymentMethod $paymentMethod): RedirectResponse
@@ -88,6 +88,6 @@ class PaymentMethodController extends Controller
 
         $paymentMethod->delete();
 
-        return back()->with('success', 'Payment method deleted successfully.');
+        return back()->with('success', __('admin.flash.payment_method_deleted'));
     }
 }

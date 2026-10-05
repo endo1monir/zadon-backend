@@ -37,9 +37,9 @@ class SettingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'key.required' => 'A key is required.',
-            'key.alpha_dash' => 'The key may only contain letters, numbers, dashes and underscores.',
-            'value.required' => 'A value is required.',
+            'key.required' => __('admin.validation.setting_key_required'),
+            'key.alpha_dash' => __('admin.validation.setting_key_alpha_dash'),
+            'value.required' => __('admin.validation.setting_value_required'),
         ];
     }
 }

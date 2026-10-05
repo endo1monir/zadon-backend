@@ -38,7 +38,7 @@ class SettingController extends Controller
     {
         Setting::create($request->validated());
 
-        return redirect()->route('admin.settings.index')->with('success', 'Setting created successfully.');
+        return redirect()->route('admin.settings.index')->with('success', __('admin.flash.setting_created'));
     }
 
     public function edit(Setting $setting): View
@@ -50,13 +50,13 @@ class SettingController extends Controller
     {
         $setting->update($request->validated());
 
-        return redirect()->route('admin.settings.index')->with('success', 'Setting updated successfully.');
+        return redirect()->route('admin.settings.index')->with('success', __('admin.flash.setting_updated'));
     }
 
     public function destroy(Setting $setting): RedirectResponse
     {
         $setting->delete();
 
-        return back()->with('success', 'Setting deleted successfully.');
+        return back()->with('success', __('admin.flash.setting_deleted'));
     }
 }

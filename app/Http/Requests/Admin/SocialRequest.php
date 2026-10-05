@@ -30,9 +30,9 @@ class SocialRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name_ar.required' => 'The Arabic name is required.',
-            'link.required' => 'The profile link is required.',
-            'link.url' => 'The link must be a valid URL, including https://',
+            'name_ar.required' => __('admin.validation.social_name_ar_required'),
+            'link.required' => __('admin.validation.social_link_required'),
+            'link.url' => __('admin.validation.social_link_url'),
         ];
     }
 

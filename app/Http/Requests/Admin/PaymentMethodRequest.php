@@ -41,9 +41,9 @@ class PaymentMethodRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'key.required' => 'A key is required.',
-            'key.alpha_dash' => 'The key may only contain letters, numbers, dashes and underscores.',
-            'name_en.required' => 'The English name is required.',
+            'key.required' => __('admin.validation.payment_method_key_required'),
+            'key.alpha_dash' => __('admin.validation.payment_method_key_alpha_dash'),
+            'name_en.required' => __('admin.validation.payment_method_name_en_required'),
         ];
     }
 }

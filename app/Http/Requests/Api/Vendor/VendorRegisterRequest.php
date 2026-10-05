@@ -59,11 +59,11 @@ class VendorRegisterRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'store.name_ar' => 'store name',
-            'store.name_en' => 'store name',
-            'store.city_id' => 'city',
-            'store.logo' => 'logo',
-            'store.cover_image' => 'cover image',
+            'store.name_ar' => __('validation.attributes.store_name_ar'),
+            'store.name_en' => __('validation.attributes.store_name_en'),
+            'store.city_id' => __('validation.attributes.city_id'),
+            'store.logo' => __('validation.attributes.store_logo'),
+            'store.cover_image' => __('validation.attributes.store_cover_image'),
         ];
     }
 }

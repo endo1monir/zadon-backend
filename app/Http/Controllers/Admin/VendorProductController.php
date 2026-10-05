@@ -70,7 +70,7 @@ class VendorProductController extends Controller
         $store->products()->create($attributes);
 
         return redirect()->route('admin.vendors.products.index', $vendor)
-            ->with('success', 'Product created successfully.');
+            ->with('success', __('admin.flash.product_created'));
     }
 
     public function edit(User $vendor, Product $product): View
@@ -101,7 +101,7 @@ class VendorProductController extends Controller
         $product->update($attributes);
 
         return redirect()->route('admin.vendors.products.index', $vendor)
-            ->with('success', 'Product updated successfully.');
+            ->with('success', __('admin.flash.product_updated'));
     }
 
     public function toggle(User $vendor, Product $product): RedirectResponse
@@ -110,7 +110,7 @@ class VendorProductController extends Controller
 
         $product->update(['is_active' => ! $product->is_active]);
 
-        return back()->with('success', 'Product status updated.');
+        return back()->with('success', __('admin.flash.product_status_updated'));
     }
 
     public function destroy(User $vendor, Product $product): RedirectResponse
@@ -121,7 +121,7 @@ class VendorProductController extends Controller
 
         $product->delete();
 
-        return back()->with('success', 'Product deleted successfully.');
+        return back()->with('success', __('admin.flash.product_deleted'));
     }
 
     /**

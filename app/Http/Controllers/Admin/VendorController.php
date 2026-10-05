@@ -72,7 +72,7 @@ class VendorController extends Controller
             $this->syncStoreImages($request, $store);
         });
 
-        return redirect()->route('admin.vendors.index')->with('success', 'Vendor created successfully.');
+        return redirect()->route('admin.vendors.index')->with('success', __('admin.flash.vendor_created'));
     }
 
     public function edit(User $vendor): View
@@ -104,33 +104,33 @@ class VendorController extends Controller
             $this->syncStoreImages($request, $store);
         });
 
-        return redirect()->route('admin.vendors.index')->with('success', 'Vendor updated successfully.');
+        return redirect()->route('admin.vendors.index')->with('success', __('admin.flash.vendor_updated'));
     }
 
     public function toggle(User $vendor): RedirectResponse
     {
         if ($vendor->is(request()->user())) {
             return redirect()->route('admin.vendors.index')
-                ->with('error', 'You cannot deactivate your own account.');
+                ->with('error', __('admin.flash.cannot_deactivate_self'));
         }
 
         $vendor->update(['is_active' => ! $vendor->is_active]);
 
-        return redirect()->route('admin.vendors.index')->with('success', 'Vendor status updated.');
+        return redirect()->route('admin.vendors.index')->with('success', __('admin.flash.vendor_status_updated'));
     }
 
     public function destroy(User $vendor): RedirectResponse
     {
         if ($vendor->is(request()->user())) {
             return redirect()->route('admin.vendors.index')
-                ->with('error', 'You cannot delete your own account.');
+                ->with('error', __('admin.flash.cannot_delete_self'));
         }
 
         $stores = $vendor->stores()->get();
 
         if ($stores->contains(fn (Store $store): bool => $store->products()->exists() || $store->orders()->exists())) {
             return redirect()->route('admin.vendors.index')
-                ->with('error', 'This vendor has stores with products or orders and cannot be deleted.');
+                ->with('error', __('admin.flash.vendor_in_use'));
         }
 
         DB::transaction(function () use ($vendor, $stores): void {
@@ -144,7 +144,7 @@ class VendorController extends Controller
             $vendor->delete();
         });
 
-        return redirect()->route('admin.vendors.index')->with('success', 'Vendor deleted successfully.');
+        return redirect()->route('admin.vendors.index')->with('success', __('admin.flash.vendor_deleted'));
     }
 
     /**

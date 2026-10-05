@@ -29,8 +29,8 @@ class OrderStatusRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'status.required' => 'Choose the new order status.',
-            'status.in' => 'That is not a valid order status.',
+            'status.required' => __('admin.validation.order_status_required'),
+            'status.in' => __('admin.validation.order_status_in'),
         ];
     }
 }

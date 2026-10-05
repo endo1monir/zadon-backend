@@ -8,7 +8,7 @@
     @csrf
     @method('PATCH')
     <button type="submit" class="icon-action"
-        title="{{ $label ?? ($active ? 'Set inactive' : 'Set active') }}">
+        title="{{ $label ?? ($active ? __('admin.common.set_inactive') : __('admin.common.set_active')) }}">
         {!! \App\Support\AdminIcons::svg($active ? 'authentication' : 'calendar') !!}
     </button>
 </form>

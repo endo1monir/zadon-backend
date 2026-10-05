@@ -44,7 +44,7 @@ class NotificationController extends Controller
     {
         if (! $request->filled('audience')) {
             throw ValidationException::withMessages([
-                'audience' => 'Choose who should receive this notification.',
+                'audience' => __('admin.validation.notification_audience_required'),
             ]);
         }
 
@@ -53,18 +53,18 @@ class NotificationController extends Controller
             $this->payload($request),
         );
 
-        return back()->with('success', "Notification sent to {$count} recipient(s).");
+        return back()->with('success', __('admin.flash.notification_broadcast_sent', ['count' => $count]));
     }
 
     public function sendToUser(NotificationRequest $request, User $user): RedirectResponse
     {
         if ($user->isAdmin()) {
-            return back()->with('error', 'Admins cannot receive broadcast notifications.');
+            return back()->with('error', __('admin.flash.notification_admins_skipped'));
         }
 
         $this->dispatcher->sendTo($user, $this->payload($request));
 
-        return back()->with('success', "Notification sent to {$user->name}.");
+        return back()->with('success', __('admin.flash.notification_sent', ['name' => $user->name]));
     }
 
     /**

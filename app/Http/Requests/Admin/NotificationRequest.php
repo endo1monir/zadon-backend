@@ -37,8 +37,8 @@ class NotificationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title_ar.required' => 'An Arabic title is required.',
-            'type.in' => 'Choose a valid notification type.',
+            'title_ar.required' => __('admin.validation.notification_title_ar_required'),
+            'type.in' => __('admin.validation.notification_type_in'),
         ];
     }
 }

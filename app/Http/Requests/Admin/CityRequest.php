@@ -30,7 +30,7 @@ class CityRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name_ar.required' => 'The Arabic name is required.',
+            'name_ar.required' => __('admin.validation.city_name_ar_required'),
         ];
     }
 }

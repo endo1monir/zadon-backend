@@ -72,12 +72,17 @@ class OrderController extends Controller
         $status = $request->string('status')->toString();
 
         if (! $order->canTransitionTo($status)) {
-            return back()->with('error', 'An order in the '.$order->status.' status cannot move to '.$status.'.');
+            return back()->with('error', __('admin.flash.order_status_invalid', [
+                'current' => str_replace('_', ' ', $order->status),
+                'status' => str_replace('_', ' ', $status),
+            ]));
         }
 
         $order->setStatus($status);
         $order->notifyCustomerStatusChange($status === 'cancelled');
 
-        return back()->with('success', 'Order status updated to '.str_replace('_', ' ', $status).'.');
+        return back()->with('success', __('admin.flash.order_status_updated', [
+            'status' => str_replace('_', ' ', $status),
+        ]));
     }
 }

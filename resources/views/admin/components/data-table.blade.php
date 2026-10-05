@@ -1,4 +1,4 @@
-﻿@props([
+@props([
     'headers' => [],
     'resource' => null,
     'emptyTitle' => 'No records found',
@@ -14,12 +14,12 @@
 
 <div {{ $attributes->merge(['class' => 'overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]']) }}>
     <div class="overflow-x-auto">
-        <table class="w-full min-w-max text-left">
+        <table class="w-full min-w-max text-start">
             <thead>
                 <tr>
                     @foreach ($headers as $header)
                         <th
-                            class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 {{ is_string($header) ? '' : ($header['class'] ?? '') }}">
+                            class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 align-middle text-start text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 {{ is_string($header) ? '' : ($header['class'] ?? '') }}">
                             {{ is_string($header) ? $header : $header['label'] }}
                         </th>
                     @endforeach

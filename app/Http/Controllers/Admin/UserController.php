@@ -73,7 +73,7 @@ class UserController extends Controller
             'phone_verified_at' => now(),
         ])->save();
 
-        return redirect()->route('admin.users.index')->with('success', 'Customer created successfully.');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_created'));
     }
 
     public function edit(User $user): View
@@ -88,7 +88,7 @@ class UserController extends Controller
     {
         if ($user->is($request->user())) {
             return redirect()->route('admin.users.index')
-                ->with('error', 'You cannot edit your own account from the customers section.');
+                ->with('error', __('admin.flash.cannot_edit_self'));
         }
 
         $attributes = $request->userAttributes();
@@ -100,32 +100,32 @@ class UserController extends Controller
 
         $user->update($attributes);
 
-        return redirect()->route('admin.users.index')->with('success', 'Customer updated successfully.');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_updated'));
     }
 
     public function toggle(User $user): RedirectResponse
     {
         if ($user->is(request()->user())) {
             return redirect()->route('admin.users.index')
-                ->with('error', 'You cannot deactivate your own account.');
+                ->with('error', __('admin.flash.cannot_deactivate_self'));
         }
 
         $user->update(['is_active' => ! $user->is_active]);
 
-        return redirect()->route('admin.users.index')->with('success', 'Customer status updated.');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_status_updated'));
     }
 
     public function destroy(User $user): RedirectResponse
     {
         if ($user->is(request()->user())) {
             return redirect()->route('admin.users.index')
-                ->with('error', 'You cannot delete your own account.');
+                ->with('error', __('admin.flash.cannot_delete_self'));
         }
 
         $this->deleteImage($user->avatar);
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Customer deleted successfully.');
+        return redirect()->route('admin.users.index')->with('success', __('admin.flash.user_deleted'));
     }
 }

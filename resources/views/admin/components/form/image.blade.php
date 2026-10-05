@@ -28,7 +28,7 @@
         <div
             class="border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-white/5 flex size-24 shrink-0 items-center justify-center overflow-hidden border {{ $rounded }} border-dashed">
             <template x-if="preview">
-                <img :src="preview" alt="Preview" class="size-full object-cover" />
+                <img :src="preview" alt="{{ __('admin.common.preview') }}" class="size-full object-cover" />
             </template>
             <template x-if="! preview">
                 <span class="text-gray-400 dark:text-gray-500">

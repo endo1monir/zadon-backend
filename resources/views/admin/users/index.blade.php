@@ -22,7 +22,7 @@
 
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="w-full min-w-max text-left">
+            <table class="w-full min-w-max text-start">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
                         <th class="th"><p class="th-label">{{ __('admin.th.name') }}</p></th>
@@ -79,9 +79,11 @@
                             <td class="td">
                                 <x-admin::row-actions :edit-url="route('admin.users.edit', $user)"
                                     :delete-url="route('admin.users.destroy', $user)"
-                                    :delete-message="__('admin.common.delete').' '.$user->name.'?'">
+                                    :delete-message="__('admin.delete.user', ['name' => $user->name])">
                                     <x-admin::status-toggle :action="route('admin.users.toggle', $user)"
                                         :active="$user->is_active" />
+                                    <x-admin::notification-modal :action="route('admin.notifications.user', $user)"
+                                        :types="$notificationTypeOptions" :recipient="$user->name" />
                                 </x-admin::row-actions>
                             </td>
                         </tr>

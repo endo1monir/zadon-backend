@@ -8,12 +8,12 @@
         @method('PUT')
     @endif
 
-    <x-admin::card title="Setting">
+    <x-admin::card :title="__('admin.form.sections.setting')">
         <div class="grid grid-cols-1 gap-6">
-            <x-admin::form.input name="key" label="Key" :value="$setting->key ?? null" required
-                placeholder="policy_ar" hint="Machine key used by the app. Letters, numbers, dashes and underscores only." />
+            <x-admin::form.input name="key" :label="__('admin.form.labels.key')" :value="$setting->key ?? null" required
+                placeholder="policy_ar" :hint="__('admin.form.hints.machine_key')" />
 
-            <x-admin::form.input name="value" type="textarea" :rows="16" label="Value"
+            <x-admin::form.input name="value" type="textarea" :rows="16" :label="__('admin.form.labels.value')"
                 :value="$setting->value ?? null" required />
         </div>
     </x-admin::card>

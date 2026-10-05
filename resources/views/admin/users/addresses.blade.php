@@ -31,7 +31,7 @@
 
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="w-full min-w-max text-left">
+            <table class="w-full min-w-max text-start">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
                         <th class="th"><p class="th-label">{{ __('admin.th.title') }}</p></th>

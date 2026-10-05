@@ -80,11 +80,11 @@ class VendorRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.required' => 'The phone is required, it is how the vendor signs in.',
-            'password.required' => 'The password is required, vendors sign in with a phone and password.',
-            'store_name_ar.required' => 'The store name in Arabic is required.',
-            'store_city_id.required' => 'The store city is required.',
-            'store_address.required' => 'The store address is required.',
+            'phone.required' => __('admin.validation.vendor_phone_required'),
+            'password.required' => __('admin.validation.vendor_password_required'),
+            'store_name_ar.required' => __('admin.validation.vendor_store_name_ar_required'),
+            'store_city_id.required' => __('admin.validation.vendor_store_city_id_required'),
+            'store_address.required' => __('admin.validation.vendor_store_address_required'),
         ];
     }
 

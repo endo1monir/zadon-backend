@@ -48,9 +48,9 @@ class UserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The name is required.',
-            'phone.required' => 'The phone is required, it is how the account signs in to the app.',
-            'email.required' => 'The email is required.',
+            'name.required' => __('admin.validation.user_name_required'),
+            'phone.required' => __('admin.validation.user_phone_required'),
+            'email.required' => __('admin.validation.user_email_required'),
         ];
     }
 

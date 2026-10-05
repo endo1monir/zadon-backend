@@ -1,15 +1,20 @@
 @props([
     'action',
     'method' => 'DELETE',
-    'title' => 'Delete Confirmation',
-    'message' => 'Are you sure you want to delete this item? This action cannot be undone.',
-    'submitLabel' => 'Delete',
-    'confirmLabel' => 'Delete',
+    'title' => null,
+    'message' => null,
+    'submitLabel' => null,
+    'confirmLabel' => null,
     'variant' => 'icon',
     'icon' => null,
 ])
 
 @php
+    $title = $title ?? __('admin.common.delete_title');
+    $message = $message ?? __('admin.common.are_you_sure');
+    $submitLabel = $submitLabel ?? __('admin.common.delete');
+    $confirmLabel = $confirmLabel ?? __('admin.common.delete');
+
     $variantClasses = [
         'icon' => 'text-error-600 hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-500/10 size-9 justify-center rounded-lg',
         'button' => 'text-error-600 border border-error-200 hover:bg-error-50 dark:text-error-400 dark:border-error-500/30 dark:hover:bg-error-500/10 rounded-lg px-3 py-2 text-sm font-medium',
@@ -49,7 +54,7 @@
             <div class="mt-6 flex items-center justify-center gap-3">
                 <button type="button" x-on:click="open = false"
                     class="shadow-theme-xs hover:bg-gray-50 dark:hover:bg-white/5 dark:hover:text-gray-300 flex-1 rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition dark:border-gray-700 dark:text-gray-400">
-                    Cancel
+                    {{ __('admin.common.cancel') }}
                 </button>
 
                 <form method="POST" action="{{ $action }}" class="flex-1">

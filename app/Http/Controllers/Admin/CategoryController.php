@@ -57,7 +57,7 @@ class CategoryController extends Controller
 
         Category::create($attributes);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
+        return redirect()->route('admin.categories.index')->with('success', __('admin.flash.category_created'));
     }
 
     public function edit(Category $category): View
@@ -79,30 +79,30 @@ class CategoryController extends Controller
 
         $category->update($attributes);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
+        return redirect()->route('admin.categories.index')->with('success', __('admin.flash.category_updated'));
     }
 
     public function toggle(Category $category): RedirectResponse
     {
         $category->update(['is_active' => ! $category->is_active]);
 
-        return back()->with('success', 'Category status updated.');
+        return back()->with('success', __('admin.flash.category_status_updated'));
     }
 
     public function destroy(Category $category): RedirectResponse
     {
         if ($category->children()->exists()) {
-            return back()->with('error', 'Remove the child categories before deleting this one.');
+            return back()->with('error', __('admin.flash.category_has_children'));
         }
 
         if ($category->stores()->exists() || $category->products()->exists()) {
-            return back()->with('error', 'This category is in use and cannot be deleted.');
+            return back()->with('error', __('admin.flash.category_in_use'));
         }
 
         $this->deleteImage($category->icon);
 
         $category->delete();
 
-        return back()->with('success', 'Category deleted successfully.');
+        return back()->with('success', __('admin.flash.category_deleted'));
     }
 }

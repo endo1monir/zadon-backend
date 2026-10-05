@@ -1,17 +1,17 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('content')
-    <x-admin::page-header title="Dashboard" />
+    <x-admin::page-header :title="__('admin.pages.dashboard.title')" />
 
     <x-admin::flash />
 
     <!-- Metrics -->
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         @foreach ([
-            ['label' => 'Users', 'value' => $stats['users'], 'growth' => $growth['users'], 'icon' => 'user-profile', 'class' => 'bg-brand-50 text-brand-500 dark:bg-brand-500/15'],
-            ['label' => 'Stores', 'value' => $stats['stores'], 'growth' => $growth['stores'], 'icon' => 'ecommerce', 'class' => 'bg-success-50 text-success-600 dark:bg-success-500/15'],
-            ['label' => 'Products', 'value' => $stats['products'], 'growth' => $growth['products'], 'icon' => 'task', 'class' => 'bg-warning-50 text-warning-600 dark:bg-warning-500/15'],
-            ['label' => 'Orders', 'value' => $stats['orders'], 'growth' => $growth['orders'], 'icon' => 'calendar', 'class' => 'bg-error-50 text-error-600 dark:bg-error-500/15'],
+            ['label' => __('admin.dashboard.metrics.users'), 'value' => $stats['users'], 'growth' => $growth['users'], 'icon' => 'user-profile', 'class' => 'bg-brand-50 text-brand-500 dark:bg-brand-500/15'],
+            ['label' => __('admin.dashboard.metrics.stores'), 'value' => $stats['stores'], 'growth' => $growth['stores'], 'icon' => 'ecommerce', 'class' => 'bg-success-50 text-success-600 dark:bg-success-500/15'],
+            ['label' => __('admin.dashboard.metrics.products'), 'value' => $stats['products'], 'growth' => $growth['products'], 'icon' => 'task', 'class' => 'bg-warning-50 text-warning-600 dark:bg-warning-500/15'],
+            ['label' => __('admin.dashboard.metrics.orders'), 'value' => $stats['orders'], 'growth' => $growth['orders'], 'icon' => 'calendar', 'class' => 'bg-error-50 text-error-600 dark:bg-error-500/15'],
         ] as $metric)
             <div
                 class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
@@ -30,7 +30,7 @@
                     ])>
                         {{ number_format(abs($metric['growth']), 1) }}%
                     </span>
-                    <span class="text-gray-500 dark:text-gray-400">last 30 days</span>
+                    <span class="text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.last_30_days') }}</span>
                 </p>
             </div>
         @endforeach
@@ -41,8 +41,8 @@
         <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:col-span-2 2xl:col-span-3 dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">Orders (last 30 days)</h3>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Daily order volume.</p>
+                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __('admin.dashboard.orders_chart_title') }}</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.orders_chart_subtitle') }}</p>
                 </div>
             </div>
 
@@ -55,7 +55,7 @@
                     class="bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500 flex size-11 items-center justify-center rounded-xl">
                     {!! \App\Support\AdminIcons::svg('ecommerce') !!}
                 </span>
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Total revenue</p>
+                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.total_revenue') }}</p>
                 <p class="text-title-md mt-1 font-semibold text-gray-800 dark:text-white/90">
                     {{ number_format($stats['revenue'], 2) }}
                 </p>
@@ -66,7 +66,7 @@
                     class="bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500 flex size-11 items-center justify-center rounded-xl">
                     {!! \App\Support\AdminIcons::svg('chat') !!}
                 </span>
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">New orders</p>
+                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">{{ __('admin.dashboard.new_orders') }}</p>
                 <p class="text-title-md mt-1 font-semibold text-gray-800 dark:text-white/90">
                     {{ number_format($stats['pending_orders']) }}
                 </p>
@@ -79,61 +79,61 @@
         <div
             class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium text-gray-800 dark:text-white/90">Recent orders</h3>
+                <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __('admin.dashboard.recent_orders') }}</h3>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full min-w-max text-left">
+                <table class="w-full min-w-max text-start">
                     <thead>
                         <tr>
                             <th
-                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                                Order
+                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 align-middle">
+                                {{ __('admin.th.order') }}
                             </th>
                             <th
-                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                                Customer
+                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 align-middle">
+                                {{ __('admin.th.customer') }}
                             </th>
                             <th
-                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                                Store
+                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 align-middle">
+                                {{ __('admin.th.store') }}
                             </th>
                             <th
-                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                                Status
+                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 align-middle">
+                                {{ __('admin.th.status') }}
                             </th>
                             <th
-                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                                Total
+                                class="border-b border-gray-100 bg-gray-50/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 align-middle">
+                                {{ __('admin.th.total') }}
                             </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @forelse ($recentOrders as $order)
                             <tr class="transition hover:bg-gray-50/70 dark:hover:bg-white/[0.03]">
-                                <td class="px-6 py-4 text-sm font-medium text-gray-800 dark:text-white/90">
+                                <td class="px-6 py-4 align-middle text-start text-sm font-medium text-gray-800 dark:text-white/90">
                                     {{ $order->order_number }}
                                     <span class="block text-xs font-normal text-gray-500 dark:text-gray-400">
                                         {{ $order->created_at?->diffForHumans() }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                <td class="px-6 py-4 align-middle text-start text-sm text-gray-700 dark:text-gray-300">
                                     {{ $order->user?->name ?? $order->customer_name }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                    {{ $order->store?->name_en ?? 'â€”' }}
+                                <td class="px-6 py-4 align-middle text-start text-sm text-gray-700 dark:text-gray-300">
+                                    {{ $order->store?->name_en ?? '—' }}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 align-middle">
                                     <x-admin::status-badge :status="$order->status" />
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-800 dark:text-white/90">
+                                <td class="px-6 py-4 align-middle text-start text-sm font-medium text-gray-800 dark:text-white/90">
                                     {{ number_format((float) $order->total, 2) }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="5">
-                                    <x-admin::empty-state title="No orders yet" icon="calendar" />
+                                    <x-admin::empty-state :title="__('admin.empty.orders')" icon="calendar" />
                                 </td>
                             </tr>
                         @endforelse
@@ -147,7 +147,7 @@
     <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="border-b border-gray-100 px-6 py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium text-gray-800 dark:text-white/90">Top stores</h3>
+                <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __('admin.dashboard.top_stores') }}</h3>
             </div>
             <div class="divide-y divide-gray-100 dark:divide-gray-800">
                 @forelse ($topStores as $store)
@@ -159,22 +159,22 @@
                                 {{ $store->name_en }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ $store->products_count }} {{ str('product')->plural($store->products_count) }}
+                                {{ trans_choice('admin.dashboard.products_count', $store->products_count, ['count' => $store->products_count]) }}
                             </p>
                         </div>
                         <x-admin::badge :color="$store->is_active ? 'success' : 'light'" variant="light" size="sm">
-                            {{ $store->is_active ? 'Active' : 'Inactive' }}
+                            {{ $store->is_active ? __('admin.common.active') : __('admin.common.inactive') }}
                         </x-admin::badge>
                     </div>
                 @empty
-                    <x-admin::empty-state title="No stores yet" icon="ecommerce" />
+                    <x-admin::empty-state :title="__('admin.empty.stores')" icon="ecommerce" />
                 @endforelse
             </div>
         </div>
 
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="border-b border-gray-100 px-6 py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium text-gray-800 dark:text-white/90">Low stock products</h3>
+                <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __('admin.dashboard.low_stock_products') }}</h3>
             </div>
             <div class="divide-y divide-gray-100 dark:divide-gray-800">
                 @forelse ($lowStockProducts as $product)
@@ -189,11 +189,11 @@
                         </div>
                         <x-admin::badge :color="$product->stock <= 0 ? 'error' : 'warning'" variant="light"
                             size="sm">
-                            {{ $product->stock <= 0 ? 'Out of stock' : $product->stock . ' left' }}
+                            {{ $product->stock <= 0 ? __('admin.dashboard.out_of_stock') : trans_choice('admin.dashboard.items_left', $product->stock, ['count' => $product->stock]) }}
                         </x-admin::badge>
                     </div>
                 @empty
-                    <x-admin::empty-state title="No products yet" icon="task" />
+                    <x-admin::empty-state :title="__('admin.empty.products')" icon="task" />
                 @endforelse
             </div>
         </div>

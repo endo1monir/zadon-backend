@@ -1,12 +1,12 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <x-admin::page-header title="Orders" />
+    <x-admin::page-header :title="__('admin.pages.orders.title')" />
 
     <x-admin::flash />
 
     <div class="mb-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <x-admin::card title="All orders">
+        <x-admin::card :title="__('admin.cards.all_orders')">
             <p class="text-2xl font-semibold text-gray-800 dark:text-white/90">
                 {{ array_sum($statusCounts) }}</p>
         </x-admin::card>
@@ -18,8 +18,8 @@
         @endforeach
     </div>
 
-    <x-admin::table-toolbar search-action="{{ route('admin.orders.index') }}" search-placeholder="Search orders..."
-        :filters="$filters">
+    <x-admin::table-toolbar :search-action="route('admin.orders.index')"
+        :search-placeholder="__('admin.search.orders')" :filters="$filters">
         <form method="GET" action="{{ route('admin.orders.index') }}" class="flex flex-wrap gap-3">
             @if (request()->filled('search'))
                 <input type="hidden" name="search" value="{{ request('search') }}">
@@ -27,7 +27,7 @@
 
             <select name="status" onchange="this.form.submit()"
                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pe-8 ps-4 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 sm:w-44">
-                <option value="">All statuses</option>
+                <option value="">{{ __('admin.filters.all_statuses') }}</option>
                 @foreach ($statusOptions as $statusValue => $statusLabel)
                     <option value="{{ $statusValue }}" @selected(request('status') === $statusValue)>
                         {{ $statusLabel }}</option>
@@ -36,7 +36,7 @@
 
             <select name="payment_status" onchange="this.form.submit()"
                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pe-8 ps-4 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 sm:w-40">
-                <option value="">All payments</option>
+                <option value="">{{ __('admin.filters.all_payments') }}</option>
                 @foreach ($paymentStatusOptions as $paymentValue => $paymentLabel)
                     <option value="{{ $paymentValue }}" @selected(request('payment_status') === $paymentValue)>
                         {{ $paymentLabel }}</option>
@@ -45,7 +45,7 @@
 
             <select name="store_id" onchange="this.form.submit()"
                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pe-8 ps-4 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 sm:w-44">
-                <option value="">All stores</option>
+                <option value="">{{ __('admin.filters.all_stores') }}</option>
                 @foreach ($storeOptions as $storeId => $storeName)
                     <option value="{{ $storeId }}" @selected((string) request('store_id') === (string) $storeId)>
                         {{ $storeName }}</option>
@@ -56,18 +56,18 @@
 
     <div class="table-shell">
         <div class="table-scroll">
-            <table class="w-full min-w-max text-left">
+            <table class="w-full min-w-max text-start">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
-                        <th class="th"><p class="th-label">Order</p></th>
-                        <th class="th"><p class="th-label">Customer</p></th>
-                        <th class="th"><p class="th-label">Store</p></th>
-                        <th class="th"><p class="th-label">Items</p></th>
-                        <th class="th"><p class="th-label">Total</p></th>
-                        <th class="th"><p class="th-label">Payment</p></th>
-                        <th class="th"><p class="th-label">Status</p></th>
-                        <th class="th"><p class="th-label">Placed</p></th>
-                        <th class="th text-end"><p class="th-label">Actions</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.order') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.customer') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.store') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.items') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.total') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.payment') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.status') }}</p></th>
+                        <th class="th"><p class="th-label">{{ __('admin.th.placed') }}</p></th>
+                        <th class="th text-end"><p class="th-label">{{ __('admin.th.actions') }}</p></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,12 @@
                                 <p class="td-text">{{ $order->city ?: '—' }}</p>
                             </td>
                             <td class="td">
-                                <p class="td-strong">{{ $order->customer_name ?: 'Guest' }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="td-strong">{{ $order->customer_name ?: '—' }}</p>
+                                    @unless ($order->user_id)
+                                        <x-admin::badge size="sm" color="light">{{ __('admin.common.guest_order') }}</x-admin::badge>
+                                    @endunless
+                                </div>
                                 <p class="td-text">{{ $order->customer_phone ?: '—' }}</p>
                             </td>
                             <td class="td">
@@ -89,7 +94,7 @@
                             </td>
                             <td class="td"><p class="td-text">{{ $order->items_count }}</p></td>
                             <td class="td">
-                                <p class="td-strong">{{ number_format((float) $order->total, 2) }} SAR</p>
+                                <p class="td-strong">{{ number_format((float) $order->total, 2) }} {{ __('admin.common.currency') }}</p>
                             </td>
                             <td class="td">
                                 <p class="td-text">{{ $paymentMethodOptions[$order->payment_method] ?? $order->payment_method }}</p>
@@ -113,8 +118,8 @@
                     @empty
                         <tr>
                             <td colspan="9">
-                                <x-admin::empty-state title="No orders found"
-                                    message="Customer orders appear here as soon as they are placed." icon="ecommerce" />
+                                <x-admin::empty-state :title="__('admin.empty.orders')"
+                                    :message="__('admin.messages.no_orders')" icon="ecommerce" />
                             </td>
                         </tr>
                     @endforelse

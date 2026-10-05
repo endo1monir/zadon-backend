@@ -31,7 +31,7 @@ class BannerController extends Controller
             'image' => $this->storeImage($request->file('image'), 'banners'),
         ]);
 
-        return redirect()->route('admin.banners.index')->with('success', 'Banner uploaded successfully.');
+        return redirect()->route('admin.banners.index')->with('success', __('admin.flash.banner_uploaded'));
     }
 
     public function edit(Banner $banner): View
@@ -47,7 +47,7 @@ class BannerController extends Controller
             $banner->update(['image' => $this->storeImage($request->file('image'), 'banners')]);
         }
 
-        return redirect()->route('admin.banners.index')->with('success', 'Banner updated successfully.');
+        return redirect()->route('admin.banners.index')->with('success', __('admin.flash.banner_updated'));
     }
 
     public function destroy(Banner $banner): RedirectResponse
@@ -56,6 +56,6 @@ class BannerController extends Controller
 
         $banner->delete();
 
-        return back()->with('success', 'Banner deleted successfully.');
+        return back()->with('success', __('admin.flash.banner_deleted'));
     }
 }

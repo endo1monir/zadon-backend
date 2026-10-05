@@ -7,7 +7,7 @@
 @endif
 
 @if ($errors->any() && ! isset($suppressValidationErrors))
-    <x-admin::alert variant="error" title="Please fix the following errors:" class="mb-6">
+    <x-admin::alert variant="error" :title="__('admin.form.sections.errors')" class="mb-6">
         <ul class="mt-2 list-disc space-y-1 ps-5">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>

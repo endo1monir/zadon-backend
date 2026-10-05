@@ -8,10 +8,10 @@
         @method('PUT')
     @endif
 
-    <x-admin::card title="Banner image">
+    <x-admin::card :title="__('admin.form.sections.banner_image')">
         <div class="grid grid-cols-1 gap-6">
-            <x-admin::form.image name="image" label="Image" :current="$banner->image ?? null" :required="! $editing"
-                hint="JPG, PNG or WEBP up to 2 MB. Wide images work best for home page banners." />
+            <x-admin::form.image name="image" :label="__('admin.form.labels.image')" :current="$banner->image ?? null"
+                :required="! $editing" :hint="__('admin.common.image_hint_banner')" />
         </div>
     </x-admin::card>
 

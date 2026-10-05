@@ -49,7 +49,7 @@ class SocialController extends Controller
 
         Social::create($attributes);
 
-        return redirect()->route('admin.socials.index')->with('success', 'Social link created successfully.');
+        return redirect()->route('admin.socials.index')->with('success', __('admin.flash.social_created'));
     }
 
     public function edit(Social $social): View
@@ -68,7 +68,7 @@ class SocialController extends Controller
 
         $social->update($attributes);
 
-        return redirect()->route('admin.socials.index')->with('success', 'Social link updated successfully.');
+        return redirect()->route('admin.socials.index')->with('success', __('admin.flash.social_updated'));
     }
 
     public function destroy(Social $social): RedirectResponse
@@ -77,6 +77,6 @@ class SocialController extends Controller
 
         $social->delete();
 
-        return back()->with('success', 'Social link deleted successfully.');
+        return back()->with('success', __('admin.flash.social_deleted'));
     }
 }

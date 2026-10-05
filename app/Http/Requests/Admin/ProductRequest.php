@@ -72,10 +72,10 @@ class ProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name_ar.required' => 'The product name in Arabic is required.',
-            'price.required' => 'The price is required.',
-            'unit_ar.required' => 'The Arabic unit is required.',
-            'options.array' => 'Options must be valid JSON, for example [{"name":"1 kg","price_surplus":0}].',
+            'name_ar.required' => __('admin.validation.product_name_ar_required'),
+            'price.required' => __('admin.validation.product_price_required'),
+            'unit_ar.required' => __('admin.validation.product_unit_ar_required'),
+            'options.array' => __('admin.validation.product_options_array'),
         ];
     }
 

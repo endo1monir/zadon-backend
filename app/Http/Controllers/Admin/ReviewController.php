@@ -58,13 +58,13 @@ class ReviewController extends Controller
     {
         $review->update(['published' => ! $review->published]);
 
-        return back()->with('success', 'Review visibility updated.');
+        return back()->with('success', __('admin.flash.review_visibility_updated'));
     }
 
     public function destroy(Review $review): RedirectResponse
     {
         $review->delete();
 
-        return back()->with('success', 'Review deleted successfully.');
+        return back()->with('success', __('admin.flash.review_deleted'));
     }
 }

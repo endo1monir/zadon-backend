@@ -40,7 +40,7 @@ class CityController extends Controller
     {
         City::create($request->validated());
 
-        return redirect()->route('admin.cities.index')->with('success', 'City created successfully.');
+        return redirect()->route('admin.cities.index')->with('success', __('admin.flash.city_created'));
     }
 
     public function edit(City $city): View
@@ -52,24 +52,24 @@ class CityController extends Controller
     {
         $city->update($request->validated());
 
-        return redirect()->route('admin.cities.index')->with('success', 'City updated successfully.');
+        return redirect()->route('admin.cities.index')->with('success', __('admin.flash.city_updated'));
     }
 
     public function toggle(City $city): RedirectResponse
     {
         $city->update(['is_active' => ! $city->is_active]);
 
-        return back()->with('success', 'City status updated.');
+        return back()->with('success', __('admin.flash.city_status_updated'));
     }
 
     public function destroy(City $city): RedirectResponse
     {
         if ($city->stores()->exists() || $city->users()->exists()) {
-            return back()->with('error', 'This city is in use and cannot be deleted.');
+            return back()->with('error', __('admin.flash.city_in_use'));
         }
 
         $city->delete();
 
-        return back()->with('success', 'City deleted successfully.');
+        return back()->with('success', __('admin.flash.city_deleted'));
     }
 }

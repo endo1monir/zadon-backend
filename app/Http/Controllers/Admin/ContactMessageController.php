@@ -43,6 +43,6 @@ class ContactMessageController extends Controller
     {
         $contactMessage->delete();
 
-        return back()->with('success', 'Message deleted successfully.');
+        return back()->with('success', __('admin.flash.contact_message_deleted'));
     }
 }

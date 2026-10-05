@@ -434,7 +434,7 @@
    ----------------------------------------------------------------------- */
 
 @utility th {
-  @apply px-5 py-3 text-start sm:px-6;
+  @apply px-5 py-3 text-start align-middle sm:px-6;
 }
 
 @utility th-label {
@@ -442,7 +442,7 @@
 }
 
 @utility td {
-  @apply px-5 py-4 sm:px-6;
+  @apply px-5 py-4 text-start align-middle sm:px-6;
 }
 
 @utility td-text {

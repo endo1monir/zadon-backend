@@ -1,13 +1,17 @@
 @props([
     'editUrl' => null,
     'deleteUrl' => null,
-    'deleteMessage' => 'Are you sure you want to delete this item?',
+    'deleteMessage' => null,
     'showUrl' => null,
 ])
 
+@php
+    $deleteMessage = $deleteMessage ?? __('admin.common.are_you_sure');
+@endphp
+
 <div class="flex items-center justify-end gap-1">
     @if ($showUrl)
-        <a href="{{ $showUrl }}" class="icon-action" title="View">
+        <a href="{{ $showUrl }}" class="icon-action" title="{{ __('admin.common.view') }}">
             {!! \App\Support\AdminIcons::svg('user-profile') !!}
         </a>
     @endif
@@ -15,7 +19,7 @@
     {{ $slot }}
 
     @if ($editUrl)
-        <a href="{{ $editUrl }}" class="icon-action" title="Edit">
+        <a href="{{ $editUrl }}" class="icon-action" title="{{ __('admin.common.edit') }}">
             {!! \App\Support\AdminIcons::svg('forms') !!}
         </a>
     @endif

@@ -43,9 +43,9 @@ class CategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.required' => 'Choose whether this category is for stores or products.',
-            'name_ar.required' => 'The Arabic name is required.',
-            'parent_id.exists' => 'The selected parent category is not available for this type.',
+            'type.required' => __('admin.validation.category_type_required'),
+            'name_ar.required' => __('admin.validation.category_name_ar_required'),
+            'parent_id.exists' => __('admin.validation.category_parent_exists'),
         ];
     }
 

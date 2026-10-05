@@ -1,5 +1,6 @@
 @props([
     'status',
+    'label' => null,
     'success' => 'success',
     'warning' => 'warning',
     'error' => 'error',
@@ -29,5 +30,5 @@
 @endphp
 
 <span class="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $variantClass }}">
-    {{ $slot ?: str($status)->headline() }}
+    {{ $slot ?: ($label ?? str($status)->headline()) }}
 </span>
