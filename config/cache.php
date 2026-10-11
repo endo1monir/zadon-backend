@@ -129,10 +129,10 @@ return [
     | storage. By default, no PHP classes will be unserialized from your
     | cache to prevent gadget chain attacks if your APP_KEY is leaked.
     |
-    | Cache::remember() in HomeController stores Eloquent models, so those
-    | models and the collection wrapper must be listed here. Without them a
-    | cache read returns __PHP_Incomplete_Class and the response 500s.
-    | Add any further model you start caching, otherwise reads will fail.
+    | Prefer caching resolved resource arrays (Resource::resolve()) over
+    | Eloquent models. If you do cache a model, its class AND every relation
+    | it eagerly loads must be listed here, otherwise a cache read returns
+    | __PHP_Incomplete_Class and the response 500s.
     |
     */
 
