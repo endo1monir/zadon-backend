@@ -9,9 +9,9 @@ use App\Http\Resources\StoreResource;
 use App\Http\Traits\ResponseTrait;
 use App\Models\Category;
 use App\Models\Store;
+use App\Support\CacheGroup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class StoreController extends Controller
 {
@@ -103,7 +103,7 @@ class StoreController extends Controller
             if ($search) {
                 $data = $getStores();
             } else {
-                $data = Cache::tags(['stores'])->remember(
+                $data = CacheGroup::remember('stores',
                     $cacheKey,
                     now()->addMinutes(10),
                     $getStores
@@ -135,7 +135,7 @@ class StoreController extends Controller
 
        $page = $request->integer('page', 1);
 
-      $storeData = Cache::tags(['stores'])->remember(
+      $storeData = CacheGroup::remember('stores',
             "store:{$store->id}",
             now()->addHour(),
             function () use ($store) {
@@ -144,7 +144,7 @@ class StoreController extends Controller
             }
         );
 
-     $categoryMenus = Cache::tags(['products'])->remember(
+     $categoryMenus = CacheGroup::remember('products',
         "store:{$store->id}:categories",
         now()->addHour(),
         function () use ($store) {
@@ -217,10 +217,8 @@ class StoreController extends Controller
 
         } else {
 
-            $products = Cache::tags([
-                'products',
-                "store:{$store->id}"
-            ])->remember(
+            $products = CacheGroup::remember(
+                ['products', "store:{$store->id}"],
                 $productsKey,
                 now()->addMinutes(10),
                 $productsData
