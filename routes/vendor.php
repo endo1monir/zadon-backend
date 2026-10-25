@@ -45,7 +45,7 @@ Route::middleware(['auth:sanctum', 'abilities:vendor'])->group(function (): void
 
     Route::get('/store', [StoreController::class, 'show']);
     Route::put('/store', [StoreController::class, 'update']);
-    Route::patch('/store/status', [StoreController::class, 'updateStatus']);
+    Route::post('/store/status', [StoreController::class, 'updateStatus']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll']);
