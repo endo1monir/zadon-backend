@@ -63,7 +63,10 @@ class OrderController extends Controller
             'statusOptions' => AdminOptions::orderStatuses(),
             'paymentMethodOptions' => AdminOptions::orderPaymentMethods(),
             'paymentStatusOptions' => AdminOptions::orderPaymentStatuses(),
-            'nextStatuses' => $order->allowedStatusTransitions(),
+            'nextStatuses' => array_intersect_key(
+                AdminOptions::orderStatuses(),
+                array_flip($order->allowedStatusTransitions()),
+            ),
         ]);
     }
 

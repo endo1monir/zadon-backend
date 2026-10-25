@@ -139,6 +139,16 @@ it('shows every order detail', function (): void {
         ->assertSee($order->store->name_ar);
 });
 
+it('renders the allowed next statuses as selectable status keys', function (): void {
+    $order = Order::factory()->status('new')->create();
+
+    $this->get(route('admin.orders.show', $order))
+        ->assertOk()
+        ->assertSee('value="preparing"', escape: false)
+        ->assertSee('value="cancelled"', escape: false)
+        ->assertDontSee('value="0"', escape: false);
+});
+
 it('renders an order without items or user', function (): void {
     $order = Order::factory()->guest()->create();
 
