@@ -36,7 +36,7 @@ Route::middleware(['auth:sanctum', 'abilities:vendor'])->group(function (): void
 
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
-    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
     Route::patch('/orders/{order}/items/{orderItem}/packed', [OrderController::class, 'setPacked'])->scopeBindings();
 
