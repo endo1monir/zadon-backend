@@ -3,7 +3,7 @@
     $categoryType = old('type', $selectedType ?? $category->type ?? 'store');
 @endphp
 
-<form method="POST" action="{{ $action }}" class="space-y-6">
+<form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-6">
     @csrf
     @if ($editing)
         @method('PUT')
@@ -27,8 +27,8 @@
             <x-admin::form.input name="slug" :label="__('admin.form.labels.slug')" :value="$category->slug ?? null"
                 placeholder="auto-generated-from-the-name" :hint="__('admin.form.hints.slug_rules')" />
 
-            <x-admin::form.input name="icon" :label="__('admin.form.labels.icon_identifier')" :value="$category->icon ?? null"
-                placeholder="ecommerce" :hint="__('admin.form.hints.icon_identifier_hint')" />
+            <x-admin::form.image name="icon" :label="__('admin.form.labels.icon')" :current="$category->icon ?? null"
+                accept="image/*" :hint="__('admin.form.hints.icon_types_category')" colspan="2" />
 
             <x-admin::form.input name="sort_order" :label="__('admin.form.labels.sort_order')" type="number" :min="0"
                 :step="1" :value="$category->sort_order ?? 0" :hint="__('admin.form.hints.sort_order_hint')" />
