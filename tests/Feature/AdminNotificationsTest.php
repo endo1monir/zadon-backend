@@ -199,8 +199,8 @@ it('searches the sent history', function (): void {
         ->assertDontSee('Unrelated notice');
 });
 
-it('never fails the send when the fcm driver is missing', function (): void {
-    expect(DashboardNotification::fcmAvailable())->toBeFalse();
+it('persists the notification even when the recipient has no fcm token', function (): void {
+    expect(DashboardNotification::fcmAvailable())->toBeTrue();
 
     $user = User::factory()->create(['role' => 'customer']);
 
