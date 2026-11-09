@@ -41,7 +41,11 @@ class CartController extends Controller
         $cart = $this->activeCart($user->id);
 
         if ($cart && $cart->store_id !== $product->store_id) {
-            $cart->update(['status' => 'abandoned']);
+            Cart::query()
+                ->where('user_id', $user->id)
+                ->where('status', 'active')
+                ->update(['status' => 'abandoned']);
+
             $cart = null;
         }
 

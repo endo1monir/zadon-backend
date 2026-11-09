@@ -164,6 +164,70 @@ test('updating and removing cart items also return the payment methods and defau
         ->assertJsonPath('data.payment_methods.0.id', $method->id);
 });
 
+test('the product resource flags an item that is already in the cart', function () {
+    $user = cartUser();
+    $product = cartProduct($user);
+
+    cartWithItem($user, $product);
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->getJson("/api/products/{$product->id}")
+        ->assertOk()
+        ->assertJsonPath('data.product.in_cart', true)
+        ->assertJsonPath('data.product.in_cart_count', 2);
+});
+
+test('the product resource reports an item that is not in the cart', function () {
+    $user = cartUser();
+    $product = cartProduct($user);
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->getJson("/api/products/{$product->id}")
+        ->assertOk()
+        ->assertJsonPath('data.product.in_cart', false)
+        ->assertJsonPath('data.product.in_cart_count', 0);
+});
+
+test('the product resource does not flag cart items for guests', function () {
+    $user = cartUser();
+    $product = cartProduct($user);
+
+    cartWithItem($user, $product);
+
+    $this->getJson("/api/products/{$product->id}")
+        ->assertOk()
+        ->assertJsonPath('data.product.in_cart', false)
+        ->assertJsonPath('data.product.in_cart_count', 0);
+});
+
+test('adding an item from a different store replaces the previous cart', function () {
+    $user = cartUser();
+    $first = cartProduct($user);
+    $oldCart = cartWithItem($user, $first);
+
+    $second = cartProduct($user);
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->postJson('/api/cart/items', [
+        'store_id' => $second->store_id,
+        'product_id' => $second->id,
+        'quantity' => 1,
+    ])
+        ->assertOk()
+        ->assertJsonPath('data.cart.store.id', $second->store_id)
+        ->assertJsonCount(1, 'data.cart.items');
+
+    $active = Cart::where('user_id', $user->id)->where('status', 'active')->get();
+
+    expect($active)->toHaveCount(1)
+        ->and($active->first()->store_id)->toBe($second->store_id)
+        ->and($active->first()->items()->count())->toBe(1)
+        ->and($oldCart->fresh()->status)->toBe('abandoned');
+});
+
 test('the cart payload only exposes the current user address', function () {
     $user = cartUser('عبدالله');
     $other = cartUser('فاطمة');

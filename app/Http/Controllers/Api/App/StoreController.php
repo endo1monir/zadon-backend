@@ -20,97 +20,95 @@ class StoreController extends Controller
     public function index(Request $request): JsonResponse
     {
 
-            $categoryId = $request->filled('category_id') ? $request->integer('category_id'): null;
-            $cityId = $request->filled('city_id') ? $request->integer('city_id') : null;
-            $city = $request->filled('city') ? (string) $request->string('city'): null;
-            $search = $request->filled('search')? (string) $request->string('search') : null;
-            $page = $request->integer('page', 1);
+        $categoryId = $request->filled('category_id') ? $request->integer('category_id') : null;
+        $cityId = $request->filled('city_id') ? $request->integer('city_id') : null;
+        $city = $request->filled('city') ? (string) $request->string('city') : null;
+        $search = $request->filled('search') ? (string) $request->string('search') : null;
+        $page = $request->integer('page', 1);
 
-            $cacheKey = 'stores:list:' . md5(json_encode([
-                'category_id' => $categoryId,
-                'city_id' => $cityId,
-                'city' => $city,
-                'page' => $page,
-            ]));
+        $cacheKey = 'stores:list:'.md5(json_encode([
+            'category_id' => $categoryId,
+            'city_id' => $cityId,
+            'city' => $city,
+            'page' => $page,
+        ]));
 
-
-            $getStores = function () use (
-                $categoryId,
-                $cityId,
-                $city,
-                $search
-            ) {
-                $stores = Store::query()
-                    ->active()
-                    ->with('category', 'city')
-                    ->when(
-                        $categoryId,
-                        fn ($q) => $q->where(
-                            'category_id',
-                            $categoryId
-                        )
+        $getStores = function () use (
+            $categoryId,
+            $cityId,
+            $city,
+            $search
+        ) {
+            $stores = Store::query()
+                ->active()
+                ->with('category', 'city')
+                ->when(
+                    $categoryId,
+                    fn ($q) => $q->where(
+                        'category_id',
+                        $categoryId
                     )
-                    ->when(
-                        $cityId,
-                        fn ($q) => $q->where(
-                            'city_id',
-                            $cityId
-                        )
+                )
+                ->when(
+                    $cityId,
+                    fn ($q) => $q->where(
+                        'city_id',
+                        $cityId
                     )
-                    ->when(
-                        $city,
-                        fn ($q) => $q->whereHas(
-                            'city',
-                            fn ($inner) => $inner
-                                ->where('name_ar', $city)
-                                ->orWhere('name_en', $city)
-                        )
+                )
+                ->when(
+                    $city,
+                    fn ($q) => $q->whereHas(
+                        'city',
+                        fn ($inner) => $inner
+                            ->where('name_ar', $city)
+                            ->orWhere('name_en', $city)
                     )
-                    ->when(
-                        $search,
-                        fn ($q) => $q->where(
-                            fn ($inner) => $inner
-                                ->where(
-                                    'name_ar',
-                                    'like',
-                                    "%{$search}%"
-                                )
-                                ->orWhere(
-                                    'name_en',
-                                    'like',
-                                    "%{$search}%"
-                                )
-                        )
+                )
+                ->when(
+                    $search,
+                    fn ($q) => $q->where(
+                        fn ($inner) => $inner
+                            ->where(
+                                'name_ar',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'name_en',
+                                'like',
+                                "%{$search}%"
+                            )
                     )
-                    ->orderByDesc('rating')
-                    ->paginate(20);
+                )
+                ->orderByDesc('rating')
+                ->paginate(20);
 
-                return [
-                    'stores' => StoreResource::collection(
-                        $stores->items()
-                    )->resolve(),
+            return [
+                'stores' => StoreResource::collection(
+                    $stores->items()
+                )->resolve(),
 
-                    'pagination' => [
-                        'current_page' => $stores->currentPage(),
-                        'last_page' => $stores->lastPage(),
-                        'per_page' => $stores->perPage(),
-                        'total' => $stores->total(),
-                    ],
-                ];
-            };
+                'pagination' => [
+                    'current_page' => $stores->currentPage(),
+                    'last_page' => $stores->lastPage(),
+                    'per_page' => $stores->perPage(),
+                    'total' => $stores->total(),
+                ],
+            ];
+        };
 
+        if ($search) {
+            $data = $getStores();
+        } else {
+            $data = CacheGroup::remember('stores',
+                $cacheKey,
+                now()->addMinutes(10),
+                $getStores
+            );
+        }
 
-            if ($search) {
-                $data = $getStores();
-            } else {
-                $data = CacheGroup::remember('stores',
-                    $cacheKey,
-                    now()->addMinutes(10),
-                    $getStores
-                );
-            }
-
-            return $this->successReturn($data);
+        return $this->successReturn($data);
 
     }
 
@@ -129,13 +127,13 @@ class StoreController extends Controller
     {
         abort_unless($store->is_active, 404);
 
-       $categoryId = $request->filled('category_id')? $request->integer('category_id')  : null;
+        $categoryId = $request->filled('category_id') ? $request->integer('category_id') : null;
 
-       $search = $request->string('search')->toString();
+        $search = $request->string('search')->toString();
 
-       $page = $request->integer('page', 1);
+        $page = $request->integer('page', 1);
 
-      $storeData = CacheGroup::remember('stores',
+        $storeData = CacheGroup::remember('stores',
             "store:{$store->id}",
             now()->addHour(),
             function () use ($store) {
@@ -144,31 +142,32 @@ class StoreController extends Controller
             }
         );
 
-     $categoryMenus = CacheGroup::remember('products',
-        "store:{$store->id}:categories",
-        now()->addHour(),
-        function () use ($store) {
-            $categoryIds = $store->products()
-                ->purchasable()
-                ->distinct()
-                ->pluck('category_id')
-                ->filter();
-            return CategoryResource::collection(
-                Category::query()
-                    ->whereIn('id', $categoryIds)
-                    ->active()
-                    ->orderBy('sort_order')
-                    ->get()
-            )->resolve();
-        }
+        $categoryMenus = CacheGroup::remember('products',
+            "store:{$store->id}:categories",
+            now()->addHour(),
+            function () use ($store) {
+                $categoryIds = $store->products()
+                    ->purchasable()
+                    ->distinct()
+                    ->pluck('category_id')
+                    ->filter();
+
+                return CategoryResource::collection(
+                    Category::query()
+                        ->whereIn('id', $categoryIds)
+                        ->active()
+                        ->orderBy('sort_order')
+                        ->get()
+                )->resolve();
+            }
         );
 
-        $productsKey = 'store:'.$store->id.':products:' . md5(json_encode([
+        $productsKey = 'store:'.$store->id.':products:'.md5(json_encode([
             'category_id' => $categoryId,
             'page' => $page,
         ]));
 
-        $productsData = function () use ( $store,$categoryId,$search) {
+        $productsData = function () use ($store, $categoryId, $search) {
             $products = $store->products()
                 ->with('category')
                 ->purchasable()
@@ -198,7 +197,6 @@ class StoreController extends Controller
                 ->orderByDesc('sales_count')
                 ->paginate(20);
 
-
             return [
                 'products' => ProductResource::collection(
                     $products->items()
@@ -210,7 +208,7 @@ class StoreController extends Controller
                     'total' => $products->total(),
                 ],
             ];
-    };
+        };
 
         if ($search !== '') {
             $products = $productsData();
@@ -226,6 +224,7 @@ class StoreController extends Controller
 
         }
 
+        $products['products'] = ProductResource::withCartState($request, $products['products']);
 
         return $this->successReturn([
             'store' => $storeData,
