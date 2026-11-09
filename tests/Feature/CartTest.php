@@ -164,6 +164,33 @@ test('updating and removing cart items also return the payment methods and defau
         ->assertJsonPath('data.payment_methods.0.id', $method->id);
 });
 
+test('the cart count endpoint returns the total quantity of items', function () {
+    $user = cartUser();
+    $product = cartProduct($user);
+
+    cartWithItem($user, $product);
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->getJson('/api/cart/count')
+        ->assertOk()
+        ->assertJsonPath('data.items_count', 2);
+});
+
+test('the cart count endpoint returns zero for a user without a cart', function () {
+    $user = cartUser();
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->getJson('/api/cart/count')
+        ->assertOk()
+        ->assertJsonPath('data.items_count', 0);
+});
+
+test('the cart count endpoint requires authentication', function () {
+    $this->getJson('/api/cart/count')->assertUnauthorized();
+});
+
 test('the product resource flags an item that is already in the cart', function () {
     $user = cartUser();
     $product = cartProduct($user);

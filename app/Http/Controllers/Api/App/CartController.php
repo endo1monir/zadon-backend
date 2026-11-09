@@ -25,6 +25,15 @@ class CartController extends Controller
         return $this->cartResponse($request, $this->activeCart($request->user()->id));
     }
 
+    public function count(Request $request): JsonResponse
+    {
+        $cart = $this->activeCart($request->user()->id);
+
+        return $this->successReturn([
+            'items_count' => $cart ? (int) $cart->items()->sum('quantity') : 0,
+        ]);
+    }
+
     public function addItem(AddCartItemRequest $request): JsonResponse
     {
         $user = $request->user();
