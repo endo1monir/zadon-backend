@@ -68,6 +68,7 @@ class DashboardController extends Controller
      */
     private function ordersChart(Carbon $now): array
     {
+        // K
         $rows = Order::query()
             ->selectRaw('DATE(created_at) as day, COUNT(*) as aggregate')
             ->whereBetween('created_at', [$now->copy()->subDays(29), $now])
