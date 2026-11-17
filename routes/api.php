@@ -48,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/complete-profile', [AuthController::class, 'completeProfile']);
 
-    Route::patch('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile', [ProfileController::class, 'update']);
 
     Route::post('/contact-us', [ContactController::class, 'store']);
     Route::post('/categories/{category}/icon', [CategoryController::class, 'uploadIcon']);
