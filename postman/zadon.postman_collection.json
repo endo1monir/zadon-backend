@@ -247,10 +247,10 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"email\": \"ahmed@example.com\",\n  \"phone\": \"0555012345\",\n  \"city\": \"Jeddah\"\n}",
+              "raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"email\": \"ahmed@example.com\",\n  \"phone\": \"0555012345\",\n  \"city_id\": {{cityId}}\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Update profile. Optional `avatar` file (form-data to upload). Unknown fields are ignored."
+            "description": "Update profile. Use a city ID from GET /api/cities. For an avatar upload, send multipart form-data as POST with _method=PATCH and the avatar file. Unknown fields are ignored."
           }
         },
         {
