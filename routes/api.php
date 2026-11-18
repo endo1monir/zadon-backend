@@ -44,6 +44,7 @@ Route::get('/stores/{store}', [StoreController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::post('/chat', [ChatController::class, 'store'])->middleware('throttle:ai');
+Route::get('/chat/history/{conversationId}', [ChatController::class, 'history']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/auth/logout', [AuthController::class, 'logout']);

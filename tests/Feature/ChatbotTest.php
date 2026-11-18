@@ -95,23 +95,26 @@ test('a search with no matches returns no products and tells the model', functio
     expect(geminiRequestBody(1))->toContain('No matching products found.');
 });
 
-test('the chatbot sends the configured prompt, its tools and the chat history', function () {
+test('the chatbot sends the configured prompt, its tools and the earlier messages of the conversation', function () {
     config(['ai.prompts.chat.system' => 'Be the Zadon helper. Fallback language: :language.']);
 
-    Http::fake(['generativelanguage.googleapis.com/*' => Http::response(geminiText('أهلاً'))]);
+    Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
+        ->push(geminiText('وعليكم السلام'))
+        ->push(geminiText('أهلاً')),
+    ]);
+
+    $conversationId = $this->withHeader('lang', 'ar')
+        ->postJson('/api/chat', ['message' => 'السلام عليكم'])
+        ->assertOk()
+        ->json('data.conversation_id');
 
     $this->withHeader('lang', 'ar')
-        ->postJson('/api/chat', [
-            'message' => 'وعندكم عسل؟',
-            'history' => [
-                ['role' => 'user', 'content' => 'السلام عليكم'],
-                ['role' => 'assistant', 'content' => 'وعليكم السلام'],
-            ],
-        ])
+        ->postJson('/api/chat', ['message' => 'وعندكم عسل؟', 'conversation_id' => $conversationId])
         ->assertOk()
+        ->assertJsonPath('data.conversation_id', $conversationId)
         ->assertJsonPath('data.reply', 'أهلاً');
 
-    expect(geminiRequestBody(0))
+    expect(geminiRequestBody(1))
         ->toContain('Be the Zadon helper. Fallback language: Arabic.')
         ->toContain('السلام عليكم')
         ->toContain('وعليكم السلام')
@@ -131,8 +134,8 @@ test('chat input is validated', function (array $payload, string $field) {
     Http::assertNothingSent();
 })->with([
     'missing message' => [[], 'message'],
-    'unknown history role' => [['message' => 'hi', 'history' => [['role' => 'system', 'content' => 'x']]], 'history.0.role'],
-    'empty history content' => [['message' => 'hi', 'history' => [['role' => 'user', 'content' => '']]], 'history.0.content'],
+    'message too long' => [['message' => str_repeat('a', 1001)], 'message'],
+    'conversation id is not a uuid' => [['message' => 'hi', 'conversation_id' => 'abc'], 'conversation_id'],
 ]);
 
 test('a provider error returns 503', function () {

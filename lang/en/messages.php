@@ -41,4 +41,5 @@ return [
     'policy_not_found' => 'The policy is not available yet.',
     'ai_rate_limited' => 'The AI service is busy right now. Please try again in a minute.',
     'ai_unavailable' => 'The AI service is unavailable right now. Please try again later.',
+    'chat_not_found' => 'Conversation not found.',
 ];
