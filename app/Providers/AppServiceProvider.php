@@ -66,5 +66,9 @@ class AppServiceProvider extends ServiceProvider
                 $request->input('phone').'|'.$request->ip()
             );
         });
+
+        RateLimiter::for('ai', function (Request $request): Limit {
+            return Limit::perMinute(10)->by($request->user('sanctum')?->id ?: $request->ip());
+        });
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\App\AddressController;
 use App\Http\Controllers\Api\App\AuthController;
 use App\Http\Controllers\Api\App\CartController;
 use App\Http\Controllers\Api\App\CategoryController;
+use App\Http\Controllers\Api\App\ChatController;
 use App\Http\Controllers\Api\App\CheckoutController;
 use App\Http\Controllers\Api\App\CityController;
 use App\Http\Controllers\Api\App\ContactController;
@@ -42,6 +43,7 @@ Route::get('/stores/{store}/products', [StoreController::class, 'products']);
 Route::get('/stores/{store}', [StoreController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::post('/chat', [ChatController::class, 'store'])->middleware('throttle:ai');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -62,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy']);
 
     Route::get('/cart', [CartController::class, 'show']);
+    Route::delete('/cart', [CartController::class, 'clear']);
     Route::get('/cart/count', [CartController::class, 'count']);
     Route::post('/cart/items', [CartController::class, 'addItem']);
     Route::patch('/cart/items/{cartItem}', [CartController::class, 'updateItem']);

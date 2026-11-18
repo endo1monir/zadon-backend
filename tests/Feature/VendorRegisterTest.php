@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Storage;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    Storage::fake('public');
+    // Keep the real disk URL: Storage::fake() no longer copies it, which would
+    // make image links relative ("/storage/...") instead of full URLs.
+    Storage::fake('public', ['url' => config('filesystems.disks.public.url')]);
 
     $this->category = Category::create([
         'type' => 'store',
@@ -313,17 +315,16 @@ test('logo and cover image can be uploaded with the nested keys', function () {
         ->assertCreated()
         ->json('data.token');
 
+    // Files go inside the same "store" array as the text fields: call() merges a
+    // separate files array with array_merge, so a "store" key in both would drop the files.
     $this->call('PUT', '/api/vendor/store', [
         'store' => [
             'name_ar' => 'صيدلية النور',
             'address' => 'الرياض، حي العليا، شارع الملك فهد',
-        ],
-    ], [], [
-        'store' => [
             'logo' => UploadedFile::fake()->create('logo.png', 10, 'image/png'),
             'cover_image' => UploadedFile::fake()->create('cover.jpg', 10, 'image/jpeg'),
         ],
-    ], [
+    ], [], [], [
         'HTTP_AUTHORIZATION' => 'Bearer '.$token,
         'HTTP_ACCEPT' => 'application/json',
     ])->assertOk()

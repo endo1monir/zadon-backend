@@ -39,4 +39,6 @@ return [
     'social_icon_uploaded' => 'Social icon uploaded successfully.',
     'category_icon_uploaded' => 'Category icon uploaded successfully.',
     'policy_not_found' => 'The policy is not available yet.',
+    'ai_rate_limited' => 'The AI service is busy right now. Please try again in a minute.',
+    'ai_unavailable' => 'The AI service is unavailable right now. Please try again later.',
 ];
