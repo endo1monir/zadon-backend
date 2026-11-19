@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\McpAdmin;
 use App\Models\User;
 
 return [
@@ -42,6 +43,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // OAuth tokens for the admin MCP server (Gemini and other assistants).
+        'mcp' => [
+            'driver' => 'passport',
+            'provider' => 'mcp_admins',
+        ],
     ],
 
     /*
@@ -65,6 +72,12 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        // Active admins only; used by the "mcp" guard.
+        'mcp_admins' => [
+            'driver' => 'eloquent',
+            'model' => McpAdmin::class,
         ],
 
         // 'users' => [
