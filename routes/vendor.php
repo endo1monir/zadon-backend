@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Vendor\AiController;
 use App\Http\Controllers\Api\Vendor\AuthController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\NotificationController;
@@ -25,6 +26,11 @@ Route::middleware(['auth:sanctum', 'abilities:vendor'])->group(function (): void
     Route::get('/auth/me', [AuthController::class, 'me']);
 
     Route::get('/dashboard/overview', [DashboardController::class, 'overview']);
+
+    Route::middleware('throttle:ai')->group(function (): void {
+        Route::post('/ai/generate-text', [AiController::class, 'generateText']);
+        Route::post('/products/{product}/ai-descriptions', [AiController::class, 'productDescriptions']);
+    });
 
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{product}/stock-adjustments', [ProductController::class, 'stockHistory']);

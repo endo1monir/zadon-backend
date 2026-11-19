@@ -101,6 +101,7 @@ class ProductController extends BaseController
                 'quantity' => $delta,
                 'previous_stock' => $previous,
                 'new_stock' => $new,
+                'reason' => $request->validated('reason'),
             ]);
         });
 

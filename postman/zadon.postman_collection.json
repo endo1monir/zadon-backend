@@ -14,6 +14,9 @@
     { "key": "categoryId", "value": "1" },
     { "key": "cityId", "value": "1" },
     { "key": "fcmToken", "value": "" },
+    { "key": "customerPhone", "value": "0551111111" },
+    { "key": "otpCode", "value": "" },
+    { "key": "conversationId", "value": "" },
     { "key": "orderId", "value": "1" },
     { "key": "orderItemId", "value": "1" },
     { "key": "cartItemId", "value": "1" },
@@ -75,10 +78,10 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone\": \"0555012345\",\n  \"password\": \"password123\"\n}",
+              "raw": "{\n  \"phone\": \"{{customerPhone}}\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Login as a customer. Token auto-saved to `app_token`."
+            "description": "Step 1 of customer login: sends an OTP to `phone` (creates the customer if new). Outside production the code is returned in `data.code` and auto-saved to `otpCode`. Then run **Verify OTP**."
           },
           "event": [
             {
@@ -87,7 +90,40 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.token) { pm.collectionVariables.set('app_token', json.token); }"
+                  "if (json.data && json.data.code) { pm.collectionVariables.set('otpCode', json.data.code); pm.test('OTP captured', () => pm.expect(json.data.code).to.be.a('string')); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-otp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "verify-otp"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{customerPhone}}\",\n  \"otp\": \"{{otpCode}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Step 2 of customer login: checks the OTP from **Login** and returns the customer token, auto-saved to `app_token`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.token) { pm.collectionVariables.set('app_token', json.data.token); pm.test('Token captured', () => pm.expect(json.data.token).to.be.a('string')); }"
                 ]
               }
             }
@@ -197,6 +233,58 @@
               "path": ["api", "products", "{{productId}}"]
             },
             "description": "Public. Product details. Returns 404 if inactive."
+          }
+        },
+        {
+          "name": "Chatbot",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "lang", "value": "ar" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}", "description": "Optional. Without it the bot only answers about offers and products." }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "chat"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"عايز العروض الموجودة\",\n  \"conversation_id\": \"{{conversationId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "One endpoint for the whole chat. **No login needed.** The model reads `message`, decides which tools to use and answers from real data.\n\n**Conversation:** the first message (no `conversation_id`, or an empty one) starts a new conversation and the response returns its `conversation_id`. Send that id with every next message so the bot remembers the chat. This request saves it in `{{conversationId}}` automatically; clear the variable to start a new chat. Use the same id with **Chat History**.\nA guest's conversation is open to whoever holds its id. A logged-in customer's conversation is theirs only (others get 404). If a guest logs in and continues the chat, it becomes theirs.\n\n**Guests** (no token): offers, product search, categories.\n**Logged in** (`Bearer {{app_token}}`): the bot runs actions by calling the same customer API endpoints as the app, as the same customer:\n- Orders: last order / order status / history, review a delivered order.\n- Cart: show, add, change quantity, remove a product, clear the cart.\n- Account: profile (name, email), addresses (list, add, set default, delete), wallet balance and transactions, notifications, message support.\n- Place an order (cash or wallet).\n\n**Confirmation:** placing an order and deleting an address are always two messages: the bot shows a summary first and only runs the action after the customer says yes in the next message (or cancels it). The summary expires after 10 minutes, and an order summary also expires when the cart changes. Card / Apple Pay go through the cart screen. Wallet top-up, phone change and order cancelling are not available in chat.\n\n**Response:** `conversation_id`, `reply` (text), `products` (product cards, same shape as List Products) and `orders` (order cards, same shape as Show Order).\n\nLimited to 10 requests/minute per user (or IP for guests). Prompts and tool descriptions live in `config/ai.php`."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.conversation_id) { pm.collectionVariables.set('conversationId', json.data.conversation_id); pm.test('Conversation id captured', () => pm.expect(json.data.conversation_id).to.be.a('string')); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Chat History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "lang", "value": "ar" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}", "description": "Needed only for a logged-in customer's conversation." }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/chat/history/{{conversationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "chat", "history", "{{conversationId}}"]
+            },
+            "description": "Every message of one conversation, oldest first: `id`, `role` (`user` or `assistant`), `content`, `products` and `orders` (the cards shown with the bot's answer, same shapes as the Chatbot response) and `created_at`.\n\nUses the `conversation_id` returned by **Chatbot** (saved in `{{conversationId}}`). Unknown id, or a customer's conversation opened by someone else: 404."
           }
         },
         {
@@ -454,6 +542,22 @@
               "path": ["api", "cart", "items", "{{cartItemId}}"]
             },
             "description": "Removes a cart item. Also returns the global `payment_methods` and `default_address`."
+          }
+        },
+        {
+          "name": "Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{app_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart"]
+            },
+            "description": "Deletes the customer's active cart (the `carts` row) together with all its items. Checked-out carts are kept. Returns an empty cart plus the global `payment_methods` and `default_address`. The chatbot uses this for \"delete / empty my cart\"."
           }
         },
         {

@@ -271,3 +271,51 @@ test('the cart payload only exposes the current user address', function () {
         ->assertJsonPath('data.default_address', null)
         ->assertJsonPath('data.payment_methods.0.id', $method->id);
 });
+
+test('clearing the cart deletes the active cart and its items', function () {
+    $user = cartUser();
+    $product = cartProduct($user);
+    $cart = cartWithItem($user, $product);
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->deleteJson('/api/cart')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.cart.items_count', 0)
+        ->assertJsonPath('data.cart.items', []);
+
+    $this->assertModelMissing($cart);
+    $this->assertDatabaseMissing('cart_items', ['cart_id' => $cart->id]);
+});
+
+test('clearing the cart keeps checked out carts and other customers carts', function () {
+    $user = cartUser();
+    $otherUser = cartUser('سارة');
+    $product = cartProduct($user);
+
+    $checkedOutCart = cartWithItem($user, $product);
+    $checkedOutCart->update(['status' => 'checked_out']);
+    $otherCart = cartWithItem($otherUser, $product);
+    $activeCart = cartWithItem($user, $product);
+
+    Sanctum::actingAs($user, ['app']);
+
+    $this->deleteJson('/api/cart')->assertOk();
+
+    $this->assertModelMissing($activeCart);
+    $this->assertModelExists($checkedOutCart);
+    $this->assertModelExists($otherCart);
+    expect($otherCart->items()->count())->toBe(1);
+});
+
+test('clearing the cart works when there is no cart', function () {
+    Sanctum::actingAs(cartUser(), ['app']);
+
+    $this->deleteJson('/api/cart')->assertOk()->assertJsonPath('data.cart.items_count', 0)
+        ->assertJsonPath('data.cart.items', []);
+});
+
+test('clearing the cart requires authentication', function () {
+    $this->deleteJson('/api/cart')->assertUnauthorized();
+});

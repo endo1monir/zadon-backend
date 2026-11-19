@@ -13,6 +13,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Support\CartManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -34,7 +35,7 @@ class CartController extends Controller
         ]);
     }
 
-    public function addItem(AddCartItemRequest $request): JsonResponse
+    public function addItem(AddCartItemRequest $request, CartManager $cartManager): JsonResponse
     {
         $user = $request->user();
         $product = Product::findOrFail($request->integer('product_id'));
@@ -47,37 +48,7 @@ class CartController extends Controller
             return $this->failReturn('messages.not_enough_stock');
         }
 
-        $cart = $this->activeCart($user->id);
-
-        if ($cart && $cart->store_id !== $product->store_id) {
-            Cart::query()
-                ->where('user_id', $user->id)
-                ->where('status', 'active')
-                ->update(['status' => 'abandoned']);
-
-            $cart = null;
-        }
-
-        if (! $cart) {
-            $cart = Cart::create([
-                'user_id' => $user->id,
-                'store_id' => $product->store_id,
-                'status' => 'active',
-            ]);
-        }
-
-        $item = $cart->items()->where('product_id', $product->id)->first();
-
-        if ($item) {
-            $item->increment('quantity', $request->integer('quantity'));
-        } else {
-            $cart->items()->create([
-                'product_id' => $product->id,
-                'quantity' => $request->integer('quantity'),
-                'unit_price' => $product->price,
-                'options' => $request->validated('options'),
-            ]);
-        }
+        $cart = $cartManager->addItem($user, $product, $request->integer('quantity'), $request->validated('options'));
 
         return $this->cartResponse($request, $cart);
     }
@@ -106,6 +77,19 @@ class CartController extends Controller
         $cartItem->delete();
 
         return $this->cartResponse($request, $cart);
+    }
+
+    /**
+     * Delete the customer's active cart. Its items are removed with it.
+     */
+    public function clear(Request $request): JsonResponse
+    {
+        Cart::query()
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'active')
+            ->delete();
+
+        return $this->cartResponse($request, null);
     }
 
     private function cartResponse(Request $request, ?Cart $cart): JsonResponse

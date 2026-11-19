@@ -2,6 +2,8 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request as HttpRequest;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /*
@@ -60,4 +62,47 @@ function actingAsAdmin(): User
     test()->actingAs($admin);
 
     return $admin;
+}
+
+/**
+ * A fake Gemini response in which the model calls one tool.
+ *
+ * @param  array<string, mixed>  $args
+ * @return array<string, mixed>
+ */
+function geminiToolCall(string $name, array $args = []): array
+{
+    return [
+        'candidates' => [[
+            'content' => ['role' => 'model', 'parts' => [['functionCall' => ['name' => $name, 'args' => (object) $args]]]],
+            'finishReason' => 'STOP',
+        ]],
+        'usageMetadata' => ['promptTokenCount' => 10, 'candidatesTokenCount' => 5],
+    ];
+}
+
+/**
+ * A fake Gemini response in which the model answers with text.
+ *
+ * @return array<string, mixed>
+ */
+function geminiText(string $text): array
+{
+    return [
+        'candidates' => [[
+            'content' => ['role' => 'model', 'parts' => [['text' => $text]]],
+            'finishReason' => 'STOP',
+        ]],
+        'usageMetadata' => ['promptTokenCount' => 10, 'candidatesTokenCount' => 5],
+    ];
+}
+
+/**
+ * Body of the Nth request sent to Gemini (0-based), as a JSON string.
+ */
+function geminiRequestBody(int $index): string
+{
+    $requests = Http::recorded(fn (HttpRequest $request): bool => str_contains($request->url(), 'generativelanguage.googleapis.com'));
+
+    return json_encode($requests[$index][0]->data(), JSON_UNESCAPED_UNICODE);
 }
