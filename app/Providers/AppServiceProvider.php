@@ -70,5 +70,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('ai', function (Request $request): Limit {
             return Limit::perMinute(10)->by($request->user('sanctum')?->id ?: $request->ip());
         });
+
+        // The public MCP catalog: one assistant answer can call several tools.
+        RateLimiter::for('mcp', function (Request $request): Limit {
+            return Limit::perMinute(60)->by($request->ip());
+        });
     }
 }

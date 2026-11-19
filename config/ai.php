@@ -276,4 +276,32 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | MCP Server
+    |--------------------------------------------------------------------------
+    |
+    | The store as an MCP server (routes/ai.php), so outside assistants such
+    | as the Gemini app can browse the catalog. It reuses the catalog tools
+    | and their descriptions above; these are only the extra texts.
+    |
+    | path:         the server URL path, e.g. https://your-domain/mcp/zadon
+    | instructions: told to the assistant when it connects.
+    | language:     description of the optional language parameter every
+    |               tool takes.
+    |
+    */
+
+    'mcp' => [
+        'path' => env('MCP_PATH', 'mcp/zadon'),
+
+        'instructions' => <<<'TEXT'
+            Zadon (زادون) is an online store in Saudi Arabia. These tools read its live catalog: current offers, product search with prices and stock, and the product categories.
+            Prices are in Saudi riyals (SAR). Only answer about products from these tools; never invent products, prices or offers.
+            The user can buy through the Zadon app; ordering and accounts are not available here.
+            TEXT,
+
+        'language' => 'Language of product and category names in the result: "ar" for Arabic or "en" for English. Use the language the user is writing in.',
+    ],
+
 ];

@@ -70,7 +70,10 @@ class CatalogTools
         ], JSON_UNESCAPED_UNICODE);
     }
 
-    private function listOffers(ChatSession $session, ?string $category): string
+    /**
+     * Discounted products, biggest discount first. Shared with the MCP server.
+     */
+    public function listOffers(ChatSession $session, ?string $category): string
     {
         $products = $this->availableProducts()
             ->whereNotNull('original_price')
@@ -88,7 +91,10 @@ class CatalogTools
         return self::describeProducts($session, $products);
     }
 
-    private function searchProducts(ChatSession $session, string $query, int|float|null $maxPrice): string
+    /**
+     * Products matching the words, best sellers first. Shared with the MCP server.
+     */
+    public function searchProducts(ChatSession $session, string $query, int|float|null $maxPrice): string
     {
         $products = $this->availableProducts()
             ->search($query)
@@ -100,7 +106,10 @@ class CatalogTools
         return self::describeProducts($session, $products);
     }
 
-    private function listCategories(bool $parentOnly): string
+    /**
+     * Active product categories. Shared with the MCP server.
+     */
+    public function listCategories(bool $parentOnly): string
     {
         $categories = Category::query()
             ->active()
