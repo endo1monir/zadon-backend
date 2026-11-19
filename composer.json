@@ -14,6 +14,7 @@
         "laravel-notification-channels/fcm": "^6.2",
         "laravel/framework": "^13.17",
         "laravel/mcp": "^1.0",
+        "laravel/passport": "^13.12",
         "laravel/sanctum": "^4.3",
         "laravel/telescope": "^5.25",
         "laravel/tinker": "^3.0",

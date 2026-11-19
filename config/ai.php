@@ -302,6 +302,143 @@ return [
             TEXT,
 
         'language' => 'Language of product and category names in the result: "ar" for Arabic or "en" for English. Use the language the user is writing in.',
+
+        /*
+        | The admin MCP server (needs an admin login through OAuth). Every
+        | change tool works in two calls: the first only returns a summary
+        | and a one-time code; the change runs when called again with it.
+        */
+
+        'admin' => [
+            'path' => env('MCP_ADMIN_PATH', 'mcp/admin'),
+
+            'max_results' => 50,
+
+            'instructions' => <<<'TEXT'
+                You are the assistant of a Zadon (زادون) super admin. Zadon is a multi-vendor online store in Saudi Arabia (pharmacies, groceries and more). These tools read the live database: overview numbers, sales reports, orders, products and stock, stores, customers and vendors, reviews and contact messages. Prices and revenue are in Saudi riyals (SAR); revenue never counts cancelled orders.
+                Answer only from tool results; never invent numbers. For a period like "this month" or "last week", work out the dates and pass them as from/to (YYYY-MM-DD).
+                Changes (order status, activating or deactivating products, stores, users and reviews) always take two steps: call the tool without confirmation_code to get a summary and a code, show the summary to the admin, and only call it again with that code after the admin clearly agrees in a new message. Never confirm on your own.
+                TEXT,
+
+            'common' => [
+                'from' => 'Start date YYYY-MM-DD (inclusive). Default: 30 days ago.',
+                'to' => 'End date YYYY-MM-DD (inclusive). Default: today.',
+                'limit' => 'How many results to return (1-50). Default 20.',
+                'search' => 'Optional words to search for.',
+                'confirmation_code' => 'Leave empty the first time: you get a summary and a code, nothing changes. Send that code (with the same arguments) only after the admin agreed to the summary in a new message.',
+            ],
+
+            'tools' => [
+
+                // Read
+
+                'get_overview' => [
+                    'description' => 'Store-wide numbers: customers, vendors, stores, products, orders, revenue, pending (new) orders, orders and revenue today and this month, and growth in the last 30 days compared with the 30 days before. Use first for "how is the store doing" or any general question.',
+                ],
+
+                'sales_report' => [
+                    'description' => 'Sales between two dates: order count, revenue, average order value, cancelled orders, a breakdown (by day, store, payment method or status) and the best-selling products. Use for any revenue, sales, report or performance question.',
+                    'parameters' => [
+                        'group_by' => 'How to break the numbers down: "day", "store", "payment_method" or "status". Default "day".',
+                    ],
+                ],
+
+                'search_orders' => [
+                    'description' => 'Find orders, newest first, by order number, customer name or phone, status, store or date. Returns a short line per order; call get_order for the full details.',
+                    'parameters' => [
+                        'status' => 'Optional status: new, preparing, ready_for_pickup, out_for_delivery, delivered or cancelled.',
+                        'store_id' => 'Optional store id (from list_stores).',
+                    ],
+                ],
+
+                'get_order' => [
+                    'description' => 'Full details of one order: customer, phone and address, store, items, totals, payment, courier, status timeline, review, and the statuses it can move to next.',
+                    'parameters' => [
+                        'order_number' => 'The order number, e.g. "ZD-10234".',
+                    ],
+                ],
+
+                'search_products' => [
+                    'description' => 'Find products from every store, active or not, with price, cost, stock, low-stock alert level and sales. Use for product, inventory, stock, low stock or best seller questions.',
+                    'parameters' => [
+                        'store_id' => 'Optional store id (from list_stores).',
+                        'status' => '"active", "inactive" or "all". Default "all".',
+                        'low_stock' => 'Send true to list only products at or below their low-stock alert level (or out of stock).',
+                        'sort' => '"best_selling", "stock" (lowest first), "price" or "newest". Default "best_selling".',
+                    ],
+                ],
+
+                'list_stores' => [
+                    'description' => 'Stores with their owner (vendor), status, rating, number of products, orders and revenue. Use for vendor, store or branch questions and to get a store id.',
+                    'parameters' => [
+                        'status' => '"active", "inactive" or "all". Default "all".',
+                    ],
+                ],
+
+                'search_users' => [
+                    'description' => 'Find customers, vendors or admins by name, phone or email, with status, join date, number of orders, total spent and wallet balance.',
+                    'parameters' => [
+                        'role' => '"customer", "vendor" or "admin". Default "customer".',
+                        'sort' => '"newest" or "top_spenders". Default "newest".',
+                    ],
+                ],
+
+                'list_reviews' => [
+                    'description' => 'Customer reviews, newest first, with rating, comment, store, order and whether they are published.',
+                    'parameters' => [
+                        'max_rating' => 'Optional: only reviews with this many stars or fewer, e.g. 2 for bad reviews.',
+                        'store_id' => 'Optional store id.',
+                    ],
+                ],
+
+                'list_contact_messages' => [
+                    'description' => 'Messages customers sent to support through "contact us", newest first, with the sender\'s name and phone.',
+                ],
+
+                // Change (two steps)
+
+                'update_order_status' => [
+                    'description' => 'Move an order to a new status (e.g. preparing, out_for_delivery, delivered or cancelled). Only allowed next statuses work; the customer is notified.',
+                    'parameters' => [
+                        'order_number' => 'The order number.',
+                        'status' => 'The new status.',
+                    ],
+                ],
+
+                'set_product_active' => [
+                    'description' => 'Activate or deactivate (hide) a product.',
+                    'parameters' => [
+                        'product_id' => 'The product id (from search_products).',
+                        'active' => 'true to activate, false to deactivate.',
+                    ],
+                ],
+
+                'set_store_active' => [
+                    'description' => 'Activate or deactivate a store.',
+                    'parameters' => [
+                        'store_id' => 'The store id (from list_stores).',
+                        'active' => 'true to activate, false to deactivate.',
+                    ],
+                ],
+
+                'set_user_active' => [
+                    'description' => 'Activate or block a customer or vendor account. Admin accounts cannot be changed here.',
+                    'parameters' => [
+                        'user_id' => 'The user id (from search_users).',
+                        'active' => 'true to activate, false to block.',
+                    ],
+                ],
+
+                'set_review_published' => [
+                    'description' => 'Publish or hide a customer review.',
+                    'parameters' => [
+                        'review_id' => 'The review id (from list_reviews).',
+                        'published' => 'true to publish, false to hide.',
+                    ],
+                ],
+
+            ],
+        ],
     ],
 
 ];

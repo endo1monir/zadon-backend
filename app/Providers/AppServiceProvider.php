@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,6 +41,19 @@ class AppServiceProvider extends ServiceProvider
         Review::observe(ReviewObserver::class);
 
         $this->registerAdminComponents();
+        $this->configurePassport();
+    }
+
+    /**
+     * OAuth for the admin MCP server. Gemini keeps its link alive with the
+     * refresh token, so refresh tokens are reused instead of rotated.
+     */
+    private function configurePassport(): void
+    {
+        Passport::authorizationView('mcp::authorize');
+        Passport::tokensExpireIn(now()->addDay());
+        Passport::refreshTokensExpireIn(now()->addDays(30));
+        Passport::$revokeRefreshTokenAfterUse = false;
     }
 
     private function registerAdminComponents(): void
